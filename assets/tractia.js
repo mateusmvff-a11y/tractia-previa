@@ -127,7 +127,6 @@
   /* ---------- barra de navegacao ---------- */
   var navHidden = false;
   function buildChrome() {
-    ScrollTrigger.create({ trigger: '.sol', start: 'top ' + 40 + 'px', end: 'bottom 40px', onToggle: function (self) { nav.classList.toggle('on-light', self.isActive); } });
     ScrollTrigger.create({
       start: 0, end: 'max',
       onUpdate: function (self) {
@@ -144,48 +143,31 @@
     });
   }
 
+  /* o menu fica claro sobre a secao clara; criado depois da tela fixa para contar o espaco dela */
+  function buildNavTheme() {
+    ScrollTrigger.create({ trigger: '.sol', start: 'top 40px', end: 'bottom 40px', onToggle: function (self) { nav.classList.toggle('on-light', self.isActive); } });
+  }
+
   /* ---------- hero ---------- */
   function buildHero() {
     gsap.from(nav, { y: -24, autoAlpha: 0, duration: 1, delay: .2 });
-    gsap.from('.hero__media', { scale: 1.1, duration: 2.6, ease: 'power2.out' });
-    gsap.from('.hero__lines path', { autoAlpha: 0, duration: 1.8, stagger: .25, delay: .5, ease: 'power1.out' });
+    gsap.from('.hero__panel', { xPercent: 6, autoAlpha: 0, duration: 1.5, delay: .1, ease: 'power3.out' });
     revealLines($('.hero__t'), { now: true, delay: .3 });
-    fadeUp($('.hero__foot'), { now: true, delay: 1.1, y: 30 });
-
-    /* cinturao de palavras: anda sozinho, acelera com a rolagem, quase para no hover */
-    var track = $('.belt__track');
-    var belt = $('.belt');
-    var half = function () { return track.scrollWidth / 2; };
-    var x = 0, base = 70, boost = 0, hover = 1, last = performance.now();
-    belt.addEventListener('mouseenter', function () { gsap.to({ v: hover }, { v: 0.15, duration: .6, onUpdate: function () { hover = this.targets()[0].v; } }); });
-    belt.addEventListener('mouseleave', function () { gsap.to({ v: hover }, { v: 1, duration: .8, onUpdate: function () { hover = this.targets()[0].v; } }); });
-    var beltOn = true;
-    if ('IntersectionObserver' in window) {
-      new IntersectionObserver(function (en) { beltOn = en[0].isIntersecting; last = performance.now(); }).observe(belt);
-    }
-    gsap.ticker.add(function () {
-      if (!beltOn) { return; }
-      var now = performance.now(), dt = Math.min((now - last) / 1000, .05); last = now;
-      var vel = lenis ? lenis.velocity : 0;
-      boost += (Math.min(Math.abs(vel), 40) * 9 - boost) * .08;
-      x -= (base * hover + boost) * dt;
-      var w = half();
-      if (w > 0 && x <= -w) { x += w; }
-      gsap.set(track, { x: x });
-    });
+    fadeUp($$('.hero__p, .hero__btns'), { now: true, delay: .9, y: 28, stagger: .14 });
   }
 
-  /* ---------- tracao: tela fixa que avanca com a rolagem ---------- */
+  /* ---------- tracao: a escada se enche com a rolagem, depois vira "tracao" ---------- */
   function buildTracao() {
     var section = $('.tr');
-    var steps = $$('.rail__s');
-    var fill = $('.rail__line b');
+    var steps = $$('.steps__s');
+    var fills = $$('.steps__fill');
     var kw = $$('.tr__t .k');
     var mm = gsap.matchMedia();
 
+    /* acende o rotulo de cada degrau conforme o preenchimento chega nele */
     function light(p) {
-      steps.forEach(function (s, i) { s.classList.toggle('on', i / (steps.length - 1) <= p + 0.001 && p > 0 || (i === 0)); });
-      if (kw[0]) { kw[0].classList.toggle('on', true); }
+      steps.forEach(function (s, i) { s.classList.toggle('on', (i + 0.35) / steps.length <= p + 0.001); });
+      if (kw[0]) { kw[0].classList.toggle('on', p > 0.02); }
       if (kw[1]) { kw[1].classList.toggle('on', p >= 0.999); }
     }
     light(0);
@@ -193,30 +175,31 @@
     revealLines($('.tr__t'));
 
     mm.add('(min-width: 900px)', function () {
-      var title = $('.tr__t'), rail = $('.rail'), fim = $('.tr__fim'), big = $('.tr__big'), txt = $('.tr__txt');
+      var a = $('.tr__a'), fim = $('.tr__fim'), big = $('.tr__big'), txt = $('.tr__txt');
+      var grow = gsap.timeline({ defaults: { ease: 'none' } });
+      grow.fromTo(fills, { scaleY: 0 }, { scaleY: 1, duration: 1, stagger: 0.9 });
+
       var tl = gsap.timeline({
         defaults: { ease: 'none' },
         scrollTrigger: {
           trigger: section, start: 'top top', end: '+=420%', pin: true, scrub: .6, anticipatePin: 1,
-          onUpdate: function (self) { light(Math.min(self.progress / 0.58, 1)); },
-          onRefresh: function (self) { light(Math.min(self.progress / 0.58, 1)); }
+          onUpdate: function () { light(grow.progress()); },
+          onRefresh: function () { light(grow.progress()); }
         }
       });
-      tl.to(fill, { scaleX: 1, duration: 6 }, 0.4)
-        .to([title, rail], { autoAlpha: 0, y: -60, duration: 1.1, ease: 'power2.in' }, 7.2)
-        .fromTo(fim, { autoAlpha: 0 }, { autoAlpha: 1, duration: .4 }, 8.0)
-        .from(big, { y: 90, duration: 1.4, ease: 'power3.out' }, 8.0)
-        .from(txt, { y: 50, autoAlpha: 0, duration: 1.2, ease: 'power3.out' }, 9.0)
-        .to({}, { duration: 1.2 }, 10.2);
+      tl.add(grow, 0.3)
+        .to(a, { autoAlpha: 0, y: -60, duration: 1.1, ease: 'power2.in' }, 7.4)
+        .fromTo(fim, { autoAlpha: 0 }, { autoAlpha: 1, duration: .4 }, 8.2)
+        .from(big, { y: 90, duration: 1.4, ease: 'power3.out' }, 8.2)
+        .from(txt, { y: 60, autoAlpha: 0, duration: 1.2, ease: 'power3.out' }, 8.9)
+        .to({}, { duration: 1.4 }, 10.1);
     });
 
     mm.add('(max-width: 899px)', function () {
-      var vertical = window.innerWidth < 760;
-      if (vertical) { gsap.set(fill, { scaleX: 1, scaleY: 0 }); }
-      gsap.to(fill, {
-        scaleX: 1, scaleY: 1, ease: 'none',
+      gsap.fromTo(fills, { scaleX: 0 }, {
+        scaleX: 1, ease: 'none', stagger: 0.9,
         scrollTrigger: {
-          trigger: '.rail', start: 'top 78%', end: vertical ? 'bottom 55%' : '+=260', scrub: .5,
+          trigger: '.steps', start: 'top 80%', end: 'bottom 55%', scrub: .5,
           onUpdate: function (self) { light(self.progress); }
         }
       });
@@ -268,6 +251,7 @@
     buildChrome();
     buildHero();
     buildTracao();
+    buildNavTheme();
     buildSolucoes();
     buildPara();
     buildFim();

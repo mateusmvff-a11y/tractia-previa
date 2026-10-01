@@ -41,16 +41,30 @@
 </script>
 </head>
 
+
 <body>
 <a class="skip" href="#conteudo">Ir para o conteúdo</a>
 
+<!-- logo oficial da TRACTIA (exportado do Figma): letras na cor do texto, A em laranja da marca -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="logo" viewBox="127 917 1785 205">
+    <path fill="currentColor" d="M127.001 921.045V974.404H205.495V1117.78H282.572V974.404H360.753V921.045H127.001Z"/>
+    <path fill="currentColor" d="M617.474 1016.52C624.963 1006.88 628.68 995.781 628.68 983.214V981.593C628.68 962.423 621.722 947.554 607.78 936.921C593.905 926.341 574.054 921.059 548.239 921.059H391.306V1117.79H468.642V1051.75H522.002C531.737 1051.75 538.232 1053.22 541.486 1056.21C544.685 1059.13 546.306 1064.48 546.306 1072.23V1117.79H622.022V1077.73C622.022 1068.15 619.094 1059.72 613.171 1052.44C607.303 1045.15 598.249 1039.87 586.104 1036.57C599.556 1032.91 610.04 1026.21 617.474 1016.52ZM550.186 990.702C550.186 1001.38 542.902 1006.73 528.347 1006.73H468.384V971.913H528.347C542.902 971.913 550.186 977.468 550.186 988.51V990.716V990.702Z"/>
+    <path fill="currentColor" d="M856.808 921.045H757.633L659.247 1117.78H740.776L755.44 1085.47H851.838L865.4 1117.78H948.55L856.808 921.045ZM776.122 1040.13L804.865 971.64L831.933 1040.13H776.109H776.122Z"/>
+    <path fill="currentColor" d="M1141.31 1035.99V1036.3C1141.1 1046.62 1136.39 1054.26 1127.17 1059.23C1118.01 1064.2 1106.38 1066.66 1092.4 1066.66C1075.07 1066.66 1062.24 1063.1 1053.81 1056.03C1045.44 1048.96 1041.24 1037.65 1041.24 1022.15V1016.08C1041.24 1000.79 1045.44 989.695 1053.81 982.67C1062.24 975.658 1075.07 972.145 1092.4 972.145C1106.9 972.145 1118.05 974.664 1125.81 979.633C1133.56 984.603 1138.27 992.772 1139.9 1004.2V1004.51H1219.24V1004.2C1217.2 973.67 1205.57 951.517 1184.41 937.902C1163.2 924.286 1132.73 917.424 1092.93 917.424C1053.13 917.424 1019.77 925.484 996.79 941.51C973.752 957.535 962.233 982.465 962.233 1016.4V1022.47C962.233 1055.4 973.548 1080.17 996.218 1096.67C1018.89 1113.16 1050.37 1121.38 1090.74 1121.38C1131.11 1121.38 1160.91 1115.05 1181.91 1102.43C1202.9 1089.81 1215.52 1067.77 1219.77 1036.3V1035.99H1141.33H1141.31Z"/>
+    <path fill="currentColor" d="M1248.44 921.045V974.404H1326.94V1117.78H1404.02V974.404H1482.25V921.045H1248.44Z"/>
+    <path fill="currentColor" d="M1528.11 921.045V1117.78H1605.19V921.045H1528.11Z"/>
+    <path style="fill:var(--logo-a,#B45309)" d="M1912 1117.78L1820.26 921.045H1721.08L1622.7 1117.78H1704.23L1767.48 969.326L1828.85 1117.78H1912Z"/>
+  </symbol>
+</svg>
+
 <header class="nav" id="nav">
+  <a class="logo" href="#topo" aria-label="TRACTIA, início"><svg aria-hidden="true"><use href="#logo"/></svg></a>
   <nav class="nav__links" aria-label="Principal">
     <a href="#tracao">Tração</a>
     <a href="#solucoes">Soluções</a>
     <a href="#qualificacao">Para quem</a>
   </nav>
-  <a class="logo" href="#topo" aria-label="TRACTIA, início">TRACTI<span>A</span></a>
   <a class="btn btn--sm" href="https://wa.me/+5551985725175?text=Ol%C3%A1!%20Gostaria%20de%20mais%20informa%C3%A7%C3%B5es%20sobre%20os%20servi%C3%A7os%20da%20TRACTIA." target="_blank" rel="noopener">Falar com consultor <span class="btn__i" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M5 11 11 5M6.2 5H11v4.8"/></svg></span></a>
 </header>
 
@@ -58,60 +72,45 @@
 
   <!-- ============ HERO ============ -->
   <section class="hero" id="topo">
-    <div class="hero__media" aria-hidden="true">
-      <img class="hero__poster" src="assets/media/hero-poster.jpg" alt="" width="1920" height="1080" fetchpriority="high">
-      <video class="hero__video" muted playsinline preload="auto" data-hd="assets/media/hero-1080.mp4" data-sd="assets/media/hero-720.mp4"></video>
-      <div class="hero__tint"></div>
-      <div class="hero__shade"></div>
-      <svg class="hero__lines" viewBox="0 0 1440 810" preserveAspectRatio="none" fill="none">
-        <path d="M-40 800 L1480 70"/>
-        <path d="M300 830 L1480 262"/>
-        <path d="M-40 560 L520 -10"/>
-      </svg>
-    </div>
-
     <div class="wrap hero__in">
-      <h1 class="hero__t" data-rv>Em 2026 sua empresa perderá <b>mais de R$1&nbsp;milhão</b>, em processos não automatizados, estratégias falhas e dados sem inteligência.</h1>
-      <div class="hero__foot" data-rv>
-        <div class="hero__txt">
-          <p class="hero__p">A TRACTIA identifica exatamente onde esse dinheiro está se perdendo, e transforma isso em resultado para você através de soluções personalizadas com tecnologia, inteligência artificial e gestão estratégica de negócios.</p>
-          <a class="hero__down" href="#tracao" aria-label="Rolar para baixo"><svg viewBox="0 0 16 16"><path d="m3.5 6 4.5 4.5L12.5 6"/></svg></a>
-        </div>
-        <div class="hero__btns">
+      <div class="hero__copy">
+        <h1 class="hero__t" data-rv>Em 2026 sua empresa perderá <b>mais de R$1&nbsp;milhão</b>, em processos não automatizados, estratégias falhas e dados sem inteligência.</h1>
+        <p class="hero__p" data-rv>A TRACTIA identifica exatamente onde esse dinheiro está se perdendo, e transforma isso em resultado para você através de soluções personalizadas com tecnologia, inteligência artificial e gestão estratégica de negócios.</p>
+        <div class="hero__btns" data-rv>
           <a class="btn btn--lg" href="https://wa.me/+5551985725175?text=Ol%C3%A1!%20Gostaria%20de%20mais%20informa%C3%A7%C3%B5es%20sobre%20os%20servi%C3%A7os%20da%20TRACTIA." target="_blank" rel="noopener">Falar com consultor <span class="btn__i" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M5 11 11 5M6.2 5H11v4.8"/></svg></span></a>
           <a class="btn btn--lg btn--light" href="#tracao">Saiba mais <span class="btn__i" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M5 11 11 5M6.2 5H11v4.8"/></svg></span></a>
         </div>
       </div>
     </div>
-  </section>
 
-  <div class="belt" aria-hidden="true">
-    <div class="belt__track">
-      <span>Processos não automatizados</span><i></i>
-      <span>Estratégias falhas</span><i></i>
-      <span>Dados sem inteligência</span><i></i>
-      <span>Processos não automatizados</span><i></i>
-      <span>Estratégias falhas</span><i></i>
-      <span>Dados sem inteligência</span><i></i>
+    <div class="hero__panel" aria-hidden="true">
+      <div class="hero__edge"></div>
+      <div class="hero__clip">
+        <img class="hero__poster" src="assets/media/hero-poster.jpg" alt="" width="1920" height="1080" fetchpriority="high">
+        <video class="hero__video" muted playsinline preload="auto" data-hd="assets/media/hero-1080.mp4" data-sd="assets/media/hero-720.mp4"></video>
+        <div class="hero__tint"></div>
+        <div class="hero__shade"></div>
+      </div>
     </div>
-  </div>
+  </section>
 
   <!-- ============ TRACAO ============ -->
   <section class="tr" id="tracao" aria-labelledby="tr-t">
     <div class="tr__pin">
       <div class="wrap tr__in">
-        <h2 class="tr__t" id="tr-t" data-rv>Existe um espaço entre <span class="k">tecnologia</span> e <span class="k">resultado</span>.</h2>
+        <div class="tr__a">
+          <h2 class="tr__t" id="tr-t" data-rv>Existe um espaço entre <span class="k">tecnologia</span> e <span class="k">resultado</span>.</h2>
 
-        <ol class="rail" aria-label="Do investimento em tecnologia ao resultado financeiro">
-          <li class="rail__s rail__s--end"><span class="rail__d"></span><span class="rail__l">Tecnologia implementada</span></li>
-          <li class="rail__s"><span class="rail__d"></span><span class="rail__l">Processos</span></li>
-          <li class="rail__s"><span class="rail__d"></span><span class="rail__l">Dados</span></li>
-          <li class="rail__s"><span class="rail__d"></span><span class="rail__l">Inteligência</span></li>
-          <li class="rail__s"><span class="rail__d"></span><span class="rail__l">Estratégia</span></li>
-          <li class="rail__s"><span class="rail__d"></span><span class="rail__l">Resultado</span></li>
-          <li class="rail__s rail__s--end"><span class="rail__d"></span><span class="rail__l">Resultado financeiro</span></li>
-          <li class="rail__line" aria-hidden="true"><b></b></li>
-        </ol>
+          <ol class="steps" aria-label="Do investimento em tecnologia ao resultado financeiro">
+            <li class="steps__s steps__s--end" style="--h:.22"><span class="steps__fill"></span><span class="steps__l">Tecnologia implementada</span></li>
+            <li class="steps__s" style="--h:.34"><span class="steps__fill"></span><span class="steps__l">Processos</span></li>
+            <li class="steps__s" style="--h:.46"><span class="steps__fill"></span><span class="steps__l">Dados</span></li>
+            <li class="steps__s" style="--h:.58"><span class="steps__fill"></span><span class="steps__l">Inteligência</span></li>
+            <li class="steps__s" style="--h:.7"><span class="steps__fill"></span><span class="steps__l">Estratégia</span></li>
+            <li class="steps__s" style="--h:.84"><span class="steps__fill"></span><span class="steps__l">Resultado</span></li>
+            <li class="steps__s steps__s--end" style="--h:1"><span class="steps__fill"></span><span class="steps__l">Resultado financeiro</span></li>
+          </ol>
+        </div>
 
         <div class="tr__fim">
           <p class="tr__big">Chamamos isso de <em>tração.</em></p>
@@ -180,7 +179,7 @@
   <div class="wrap">
     <div class="foot__top">
       <div class="foot__brand">
-        <a class="logo" href="#topo" aria-label="TRACTIA, início">TRACTI<span>A</span></a>
+        <a class="logo" href="#topo" aria-label="TRACTIA, início"><svg aria-hidden="true"><use href="#logo"/></svg></a>
         <p>Tecnologia, inteligência artificial e gestão estratégica de negócios para gerar tração na sua empresa.</p>
       </div>
       <nav class="foot__col" aria-label="Navegação">
@@ -200,7 +199,7 @@
       </div>
     </div>
 
-    <p class="foot__mark" aria-hidden="true">TRACTIA</p>
+    <svg class="foot__mark" aria-hidden="true"><use href="#logo"/></svg>
 
     <div class="foot__base">
       <p>© 2026 TRACTIA. Todos os direitos reservados.</p>
