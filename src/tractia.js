@@ -44,6 +44,33 @@
   });
 
   /* ------------------------------------------------------------------
+     Botoes: duplica o texto (rolagem) e a seta (troca na diagonal); o efeito em si e CSS
+     ------------------------------------------------------------------ */
+  function enhanceButtons() {
+    $$('.btn').forEach(function (b) {
+      if (b.__done) { return; }
+      b.__done = true;
+      Array.prototype.slice.call(b.childNodes).forEach(function (n) {
+        if (n.nodeType === 3 && n.textContent.trim()) {
+          var label = n.textContent.trim();
+          var t = document.createElement('span'); t.className = 'btn__t';
+          var a = document.createElement('span'); a.className = 'btn__t1'; a.textContent = label;
+          var c = document.createElement('span'); c.className = 'btn__t2'; c.textContent = label; c.setAttribute('aria-hidden', 'true');
+          t.appendChild(a); t.appendChild(c);
+          b.replaceChild(t, n);
+        }
+      });
+      var ico = $('.btn__i svg', b);
+      if (ico) { var k = ico.cloneNode(true); k.setAttribute('aria-hidden', 'true'); ico.parentNode.appendChild(k); }
+    });
+    $$('.btn-round').forEach(function (r) {
+      var s = $('svg', r);
+      if (s && !r.__done) { r.__done = true; var k = s.cloneNode(true); k.setAttribute('aria-hidden', 'true'); r.appendChild(k); }
+    });
+  }
+  enhanceButtons();
+
+  /* ------------------------------------------------------------------
      Desenhos que nascem de dados (funcionam sem GSAP)
      ------------------------------------------------------------------ */
   function el(name, attrs) {

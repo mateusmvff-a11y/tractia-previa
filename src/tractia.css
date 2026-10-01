@@ -57,32 +57,72 @@ em { font-style: normal; }
 .eyebrow { font-family: var(--f-txt); font-weight: 500; font-size: .95rem; color: var(--or-d); }
 .eyebrow::first-letter { text-transform: uppercase; }
 
-/* ---------- botao: so troca de cor, nao se mexe ---------- */
+/* ---------- botao: preenchimento sobe, texto rola, seta sai na diagonal (o botao em si nao se mexe) ---------- */
 .btn {
+  --bg: var(--or); --bd: var(--or); --fg: #fff; --fill: #e07a1f; --bdh: #e07a1f; --fgh: #fff;
+  --ib: #fff; --ic: var(--or); --ibh: #fff; --ich: #b45309;
+  position: relative; overflow: hidden; isolation: isolate;
   display: inline-flex; align-items: center; gap: .9rem;
   padding: .8rem .8rem .8rem 1.4rem;
-  background: var(--or); color: #fff;
-  border: 1px solid var(--or); border-radius: 10px;
+  background: var(--bg); color: var(--fg);
+  border: 1px solid var(--bd); border-radius: 10px;
   font-family: var(--f-txt); font-weight: 500; font-size: .98rem; line-height: 1;
-  transition: background-color .25s, color .25s, border-color .25s;
+  transition: color .35s ease .08s, border-color .35s ease;
 }
-.btn__i { flex: none; display: grid; place-items: center; width: 1.7rem; height: 1.7rem; border-radius: 50%; background: #fff; color: var(--or); transition: background-color .25s, color .25s; }
-.btn__i svg { width: .95rem; height: .95rem; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
-.btn:hover { background: #d4690f; border-color: #d4690f; color: #fff; }
-.btn:hover .btn__i { background: #fff; color: #d4690f; }
+.btn::before, .btn-round::before {
+  content: ''; position: absolute; inset: -1px; z-index: -1; border-radius: inherit;
+  background: var(--fill); transform: translateY(102%);
+  transition: transform .55s cubic-bezier(.22, .9, .24, 1);
+}
+.btn__t { display: inline-grid; overflow: hidden; padding-block: .14em; margin-block: -.14em; }
+.btn__t1, .btn__t2 { grid-area: 1 / 1; white-space: nowrap; transition: transform .55s cubic-bezier(.22, .9, .24, 1); }
+.btn__t2 { transform: translateY(125%); }
+.btn__i { position: relative; overflow: hidden; flex: none; display: grid; place-items: center; width: 1.7rem; height: 1.7rem; border-radius: 50%; background: var(--ib); color: var(--ic); transition: background-color .35s ease, color .35s ease; }
+.btn__i svg, .btn-round svg { width: .95rem; height: .95rem; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; transition: transform .55s cubic-bezier(.22, .9, .24, 1); }
+.btn__i svg + svg { position: absolute; inset: 0; margin: auto; transform: translate(-170%, 170%); }
+
+/* estados: passar o mouse (so em aparelho com mouse) e foco por teclado */
+@media (hover: hover) {
+  .btn:hover { color: var(--fgh); border-color: var(--bdh); }
+  .btn:hover::before { transform: none; }
+  .btn:hover .btn__t1 { transform: translateY(-125%); }
+  .btn:hover .btn__t2 { transform: none; }
+  .btn:hover .btn__i { background: var(--ibh); color: var(--ich); }
+  .btn:hover .btn__i svg:first-child { transform: translate(170%, -170%); }
+  .btn:hover .btn__i svg + svg { transform: none; }
+}
+.btn:focus-visible { color: var(--fgh); border-color: var(--bdh); }
+.btn:focus-visible::before { transform: none; }
+.btn:focus-visible .btn__t1 { transform: translateY(-125%); }
+.btn:focus-visible .btn__t2 { transform: none; }
+.btn:focus-visible .btn__i svg:first-child { transform: translate(170%, -170%); }
+.btn:focus-visible .btn__i svg + svg { transform: none; }
+
 .btn--sm { padding: .55rem .55rem .55rem 1.1rem; font-size: .88rem; gap: .7rem; }
 .btn--sm .btn__i { width: 1.5rem; height: 1.5rem; }
 .btn--lg { padding: .95rem .95rem .95rem 1.7rem; font-size: 1.05rem; gap: 1.2rem; }
 .btn--lg .btn__i { width: 2rem; height: 2rem; }
-.btn--light { background: #fff; border-color: #fff; color: var(--ink); }
-.btn--light .btn__i { background: var(--or); color: #fff; }
-.btn--light:hover { background: var(--or); border-color: var(--or); color: #fff; }
-.btn--light:hover .btn__i { background: #fff; color: var(--or); }
-.btn--ink { background: var(--ink); border-color: var(--ink); color: var(--paper); }
-.btn--ink .btn__i { background: var(--paper); color: var(--ink); }
-.btn--ink:hover { background: var(--or); border-color: var(--or); color: #fff; }
-.btn--ink:hover .btn__i { background: #fff; color: var(--or); }
 
+/* variacoes: so mudam as cores */
+.btn--ink { --bg: var(--ink); --bd: var(--ink); --fg: var(--paper); --fill: var(--or); --bdh: var(--or); --fgh: #fff; --ib: var(--paper); --ic: var(--ink); --ibh: #fff; --ich: var(--or); }
+.btn--ghost { --bg: transparent; --bd: rgba(248,250,252,.38); --fg: #fff; --fill: #fff; --bdh: #fff; --fgh: var(--ink); --ib: #fff; --ic: var(--ink); --ibh: var(--or); --ich: #fff; }
+.nav.on-light .btn { --bg: var(--ink); --bd: var(--ink); --fg: var(--paper); --fill: var(--or); --bdh: var(--or); --fgh: #fff; --ib: var(--paper); --ic: var(--ink); --ibh: #fff; --ich: var(--or); }
+.fim .btn--ink { --fill: var(--paper); --bdh: var(--paper); --fgh: var(--ink); --ibh: var(--or); --ich: #fff; }
+
+/* circulo com seta: preenche de branco e a seta troca de lugar */
+.btn-round { --fill: #fff; position: relative; overflow: hidden; isolation: isolate; flex: none; display: grid; place-items: center; width: clamp(3.4rem, 4.2vw, 4.8rem); height: clamp(3.4rem, 4.2vw, 4.8rem); border-radius: 50%; background: var(--or); color: #fff; border: 1px solid var(--or); transition: color .35s ease .08s, border-color .35s ease; }
+.btn-round svg { width: 38%; height: 38%; }
+.btn-round svg + svg { position: absolute; inset: 0; margin: auto; transform: translateY(-170%); }
+@media (hover: hover) {
+  .btn-round:hover { color: var(--or); border-color: #fff; }
+  .btn-round:hover::before { transform: none; }
+  .btn-round:hover svg:first-of-type { transform: translateY(170%); }
+  .btn-round:hover svg + svg { transform: none; }
+}
+.btn-round:focus-visible { color: var(--or); border-color: #fff; }
+.btn-round:focus-visible::before { transform: none; }
+.btn-round:focus-visible svg:first-of-type { transform: translateY(170%); }
+.btn-round:focus-visible svg + svg { transform: none; }
 
 /* ---------- barra de navegacao ---------- */
 .nav {
@@ -97,10 +137,6 @@ em { font-style: normal; }
 .nav.is-solid { background: rgba(10,10,10,.84); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
 .nav.on-light { color: var(--ink); }
 .nav.on-light.is-solid { background: rgba(242,239,233,.9); }
-.nav.on-light .btn { background: var(--ink); border-color: var(--ink); color: var(--paper); }
-.nav.on-light .btn .btn__i { background: var(--paper); color: var(--ink); }
-.nav.on-light .btn:hover { background: var(--or); border-color: var(--or); color: #fff; }
-.nav.on-light .btn:hover .btn__i { background: #fff; color: var(--or); }
 .nav__links { display: flex; gap: 2.2rem; font-weight: 500; font-size: .95rem; }
 .nav__links a { opacity: .82; transition: opacity .25s, color .25s; }
 .nav__links a:hover { opacity: 1; color: var(--or-t); }
@@ -110,17 +146,6 @@ em { font-style: normal; }
 .logo { display: inline-block; width: fit-content; line-height: 0; color: #f8fafc; padding-block: .6rem; margin-block: -.6rem; }
 .logo svg { display: block; height: 1.35rem; width: auto; aspect-ratio: 1785 / 205; }
 .nav.on-light .logo { color: var(--ink); }
-
-/* botao discreto sobre fundo escuro: contorno claro, no hover enche */
-.btn--ghost { background: transparent; border-color: rgba(248,250,252,.38); color: #fff; }
-.btn--ghost .btn__i { background: #fff; color: var(--ink); }
-.btn--ghost:hover { background: #fff; border-color: #fff; color: var(--ink); }
-.btn--ghost:hover .btn__i { background: var(--or); color: #fff; }
-
-/* circulo com seta (estilo Studiova): so troca de cor */
-.btn-round { flex: none; display: grid; place-items: center; width: clamp(3.4rem, 4.2vw, 4.8rem); height: clamp(3.4rem, 4.2vw, 4.8rem); border-radius: 50%; background: var(--or); color: #fff; border: 1px solid var(--or); transition: background-color .25s, border-color .25s, color .25s; }
-.btn-round svg { width: 38%; height: 38%; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
-.btn-round:hover { background: #fff; border-color: #fff; color: var(--or); }
 
 /* ---------- hero: fundo animado na pagina inteira, texto grande no canto ---------- */
 .hero { position: relative; min-height: 100svh; display: flex; background: #0c0907; color: #fff; overflow: hidden; isolation: isolate; }
@@ -259,8 +284,6 @@ em { font-style: normal; }
 @media (max-width: 699px) { .fim__t { font-size: clamp(2.2rem, 10.4vw, 3.6rem); } .fim__br { display: inline; } }
 .fim__a, .fim__b { display: block; }
 .fim__b { color: #4a1d03; }
-.fim .btn--ink:hover { background: var(--paper); border-color: var(--paper); color: var(--ink); }
-.fim .btn--ink:hover .btn__i { background: var(--or); color: #fff; }
 
 /* ---------- rodape ---------- */
 .foot { background: var(--ink); padding-top: clamp(4rem, 8vw, 7rem); overflow: hidden; }
@@ -371,3 +394,14 @@ em { font-style: normal; }
   .tr__l1, .tr__l2 { font-size: clamp(2.4rem, 11.6vw, 4rem); width: auto; max-width: 100%; white-space: normal; }
 }
 .device__lid, .device__screen { isolation: isolate; }
+
+/* toque no celular: o mesmo efeito, enquanto o dedo esta no botao */
+.btn:active { color: var(--fgh); border-color: var(--bdh); }
+.btn:active::before, .btn-round:active::before { transform: none; }
+.btn:active .btn__t1 { transform: translateY(-125%); }
+.btn:active .btn__t2 { transform: none; }
+.btn:active .btn__i svg:first-child { transform: translate(170%, -170%); }
+.btn:active .btn__i svg + svg { transform: none; }
+.btn-round:active { color: var(--or); border-color: #fff; }
+.btn-round:active svg:first-of-type { transform: translateY(170%); }
+.btn-round:active svg + svg { transform: none; }
