@@ -188,11 +188,11 @@
         }
       });
       tl.add(grow, 0.3)
-        .to(a, { autoAlpha: 0, y: -60, duration: 1.1, ease: 'power2.in' }, 7.4)
-        .fromTo(fim, { autoAlpha: 0 }, { autoAlpha: 1, duration: .4 }, 8.2)
-        .from(big, { y: 90, duration: 1.4, ease: 'power3.out' }, 8.2)
-        .from(txt, { y: 60, autoAlpha: 0, duration: 1.2, ease: 'power3.out' }, 8.9)
-        .to({}, { duration: 1.4 }, 10.1);
+        .to(a, { autoAlpha: 0, y: -50, duration: 0.8, ease: 'power1.out' }, 7.3)
+        .fromTo(fim, { autoAlpha: 0 }, { autoAlpha: 1, duration: .5 }, 8.5)
+        .from(big, { y: 90, duration: 1.4, ease: 'power3.out' }, 8.5)
+        .from(txt, { y: 60, autoAlpha: 0, duration: 1.2, ease: 'power3.out' }, 9.2)
+        .to({}, { duration: 1.4 }, 10.4);
     });
 
     mm.add('(max-width: 899px)', function () {
