@@ -53,7 +53,7 @@
   }
 
   /* grafico da secao "espaco entre tecnologia e resultado": curva suave por 7 pontos */
-  var VH = 420;
+  var VH = 360;
   var H = [0.07, 0.14, 0.23, 0.36, 0.53, 0.74, 0.96];
   var chart = { pts: [], len: 0, line: null, clip: null, tip: null, cols: [] };
   function curve(P) {
@@ -69,7 +69,7 @@
   function buildChartShape() {
     var line = $('.chart__line');
     if (!line) { return; }
-    var pts = H.map(function (h, i) { return [Math.round((i + 0.5) / 7 * 1000), Math.round(VH - (24 + h * 268))]; });
+    var pts = H.map(function (h, i) { return [Math.round((i + 0.5) / 7 * 1000), Math.round(VH - (24 + h * (VH - 52)))]; });
     var P = [[0, pts[0][1] + 16]].concat(pts, [[1000, pts[6][1] - 16]]);
     var d = curve(P);
     line.setAttribute('d', d);
@@ -110,6 +110,7 @@
         ' ' + (920 + t * 110) + ' ' + (470 - t * 190) +
         ' 1720 ' + (-90 + t * 380);
       g.appendChild(el('path', { d: d, pathLength: '1' }));
+      if (i % 2 === 0) { $('.art__comets').appendChild(el('path', { d: d, pathLength: '1', 'class': 'comet' })); }
     }
     var b3 = $('.art__beams .b3');
     var pt = b3.getPointAtLength(b3.getTotalLength() * 0.8);
@@ -223,19 +224,50 @@
   /* ---------- hero ---------- */
   function buildHero() {
     gsap.from(nav, { y: -24, autoAlpha: 0, duration: 1, delay: .2 });
-    revealLines($('.hero__t'), { now: true, delay: .3 });
-    fadeUp($$('.hero__p, .hero__btns'), { now: true, delay: .9, y: 28, stagger: .14 });
+
+    /* texto: cada linha sobe de dentro da sua mascara */
+    gsap.set('.hero__top, .hero__btns', { visibility: 'visible' });
+    gsap.from('.hero__top', { y: 24, autoAlpha: 0, duration: 1.1, delay: .35 });
+    gsap.from('.hero__t .hi', { yPercent: 110, duration: 1.4, ease: 'expo.out', stagger: .12, delay: .45 });
+    gsap.from('.hero__btns', { y: 28, autoAlpha: 0, duration: 1.1, delay: 1.2 });
 
     gsap.from('.hero__bg', { opacity: 0, duration: 1.8, ease: 'power2.out' });
 
-    /* linhas finas se desenham; feixes acendem e respiram devagar */
+    /* linhas finas se desenham */
     var fan = $$('.art__fan path');
     gsap.set(fan, { strokeDasharray: 1, strokeDashoffset: 1 });
     gsap.to(fan, { strokeDashoffset: 0, duration: 2.8, stagger: .07, delay: .7, ease: 'power2.out' });
     gsap.from('.art__beams path', { opacity: 0, duration: 2.2, stagger: .2, delay: .5 });
     gsap.from('.art__node', { opacity: 0, duration: 1.2, delay: 2.2 });
-    gsap.to('.art__beams', { x: -18, y: 12, duration: 6, yoyo: true, repeat: -1, ease: 'sine.inOut' });
-    gsap.to('.art__node .halo', { attr: { r: 40 }, opacity: .35, duration: 2.4, yoyo: true, repeat: -1, ease: 'sine.inOut' });
+
+    /* fundo vivo: feixes respiram bem, manchas de luz derivam, cometas sobem pelas linhas */
+    gsap.to('.art__beams', { x: -70, y: 34, duration: 7, yoyo: true, repeat: -1, ease: 'sine.inOut' });
+    gsap.to('.art__beams--2', { x: 60, y: -26, duration: 9, yoyo: true, repeat: -1, ease: 'sine.inOut' });
+    gsap.to('.art__beams .b2', { opacity: 0.55, duration: 3.2, yoyo: true, repeat: -1, ease: 'sine.inOut' });
+    gsap.to('.blob--1', { x: '-9vw', y: '8vw', scale: 1.18, duration: 9, yoyo: true, repeat: -1, ease: 'sine.inOut' });
+    gsap.to('.blob--2', { x: '12vw', y: '-7vw', scale: 1.12, duration: 11, yoyo: true, repeat: -1, ease: 'sine.inOut' });
+    gsap.to('.blob--3', { x: '-14vw', y: '10vh', scale: 1.3, duration: 13, yoyo: true, repeat: -1, ease: 'sine.inOut' });
+    gsap.to('.art__node .halo', { attr: { r: 44 }, opacity: .4, duration: 2, yoyo: true, repeat: -1, ease: 'sine.inOut' });
+    $$('.art__comets .comet').forEach(function (c, i) {
+      gsap.set(c, { strokeDasharray: '0.06 0.94', strokeDashoffset: 0.06, opacity: 0.9 });
+      gsap.to(c, { strokeDashoffset: -0.94, duration: 3.4 + (i % 4) * 0.9, ease: 'none', repeat: -1, delay: 1.6 + i * 0.55 });
+    });
+    var nd = $('.art__beams .b3');
+    var proxy = { t: 0.62 };
+    gsap.to(proxy, { t: 0.9, duration: 6, yoyo: true, repeat: -1, ease: 'sine.inOut', onUpdate: function () {
+      var p = nd.getPointAtLength(nd.getTotalLength() * proxy.t);
+      $$('.art__node circle').forEach(function (c) { c.setAttribute('cx', p.x.toFixed(1)); c.setAttribute('cy', p.y.toFixed(1)); });
+    } });
+
+    /* o fundo acompanha o mouse de leve */
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      var qx = gsap.quickTo('.hero__bg .art', 'x', { duration: 1.4, ease: 'power3.out' });
+      var qy = gsap.quickTo('.hero__bg .art', 'y', { duration: 1.4, ease: 'power3.out' });
+      $('.hero').addEventListener('mousemove', function (e) {
+        qx((e.clientX / window.innerWidth - 0.5) * -34);
+        qy((e.clientY / window.innerHeight - 0.5) * -22);
+      });
+    }
   }
 
   /* ---------- tracao: o grafico sobe com a rolagem, depois vira "tracao" ---------- */
@@ -248,29 +280,34 @@
 
     mm.add('(min-width: 900px)', function () {
       var a = $('.tr__a'), fim = $('.tr__fim'), big = $('.tr__big'), txt = $('.tr__txt');
-      var title = $('.tr__t'), device = $('.device'), lid = $('.device__lid');
+      var title = $('.tr__t'), device = $('.device');
       var proxy = { p: 0 };
       var grow = gsap.timeline();
       grow.to(proxy, { p: 1, duration: 6.2, ease: 'power1.inOut', onUpdate: function () { renderChart(proxy.p); } });
 
-      /* laptop comeca com a tampa tombada para tras, mais baixo e menor; se levanta enquanto o grafico sobe */
-      gsap.set(lid, { rotateX: 34 });
-      gsap.set(device, { y: 120, scale: 0.9 });
-      gsap.set(title, { y: 30 });
+      /* "phone scroll hero" (21st.dev), com o celular deitado: antes de fixar a tela, conforme a secao
+         sobe, ele comeca inclinado para tras (22 graus), se endireita, cresce (.94 a 1) e sobe sobre o
+         titulo (8% da propria altura), enquanto o titulo sobe bem mais devagar */
+      gsap.fromTo(device, { rotateX: 22, scale: 0.94, yPercent: 0 }, {
+        rotateX: 0, scale: 1, yPercent: -8, ease: 'none',
+        scrollTrigger: { trigger: section, start: 'top bottom', end: 'top top', scrub: 0.6 }
+      });
+      gsap.fromTo(title, { y: 0 }, {
+        y: -24, ease: 'none',
+        scrollTrigger: { trigger: section, start: 'top bottom', end: 'top top', scrub: 0.6 }
+      });
 
+      /* ja com a tela fixa: o grafico se desenha na tela do celular e depois vira "tracao" */
       var tl = gsap.timeline({
         defaults: { ease: 'none' },
-        scrollTrigger: { trigger: section, start: 'top top', end: '+=520%', pin: true, scrub: 1.2, anticipatePin: 1 }
+        scrollTrigger: { trigger: section, start: 'top top', end: '+=460%', pin: true, scrub: 1.2, anticipatePin: 1 }
       });
-      tl.to(lid, { rotateX: 0, duration: 3.2, ease: 'power2.out' }, 0)
-        .to(device, { y: 0, scale: 1, duration: 3.2, ease: 'power2.out' }, 0)
-        .to(title, { y: 0, duration: 3.2, ease: 'power2.out' }, 0)
-        .add(grow, 2.2)
-        .to(a, { autoAlpha: 0, y: -50, duration: 0.9, ease: 'power1.out' }, 9.4)
-        .fromTo(fim, { autoAlpha: 0 }, { autoAlpha: 1, duration: .5 }, 10.6)
-        .from(big, { y: 90, duration: 1.4, ease: 'power3.out' }, 10.6)
-        .from(txt, { y: 60, autoAlpha: 0, duration: 1.2, ease: 'power3.out' }, 11.3)
-        .to({}, { duration: 1.4 }, 12.5);
+      tl.add(grow, 0.4)
+        .to(a, { autoAlpha: 0, y: -50, duration: 0.9, ease: 'power1.out' }, 7.6)
+        .fromTo(fim, { autoAlpha: 0 }, { autoAlpha: 1, duration: .5 }, 8.9)
+        .from(big, { y: 90, duration: 1.4, ease: 'power3.out' }, 8.9)
+        .from(txt, { y: 60, autoAlpha: 0, duration: 1.2, ease: 'power3.out' }, 9.6)
+        .to({}, { duration: 1.4 }, 10.8);
     });
 
     mm.add('(max-width: 899px)', function () {

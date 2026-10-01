@@ -21,7 +21,7 @@
 
 <link rel="preload" href="assets/fonts/cabinet-grotesk-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/general-sans-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/tractia.css?v=11">
+<link rel="stylesheet" href="assets/tractia.css?v=13">
 
 <script>
 /* .js so existe com JavaScript. Se a animacao nao assumir em 7 s, tudo aparece sem ela. */
@@ -72,8 +72,9 @@
 
   <!-- ============ HERO ============ -->
   <section class="hero" id="topo">
-    <!-- fundo de luz: feixes laranja subindo (a ideia de tracao da identidade); os feixes finos sao gerados no JS -->
+    <!-- fundo animado: manchas de luz que derivam, feixes que respiram e cometas subindo pelas linhas (gerados no JS) -->
     <div class="hero__bg" aria-hidden="true">
+      <span class="blob blob--1"></span><span class="blob blob--2"></span><span class="blob blob--3"></span>
       <svg class="art" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" fill="none">
         <defs>
           <linearGradient id="gb" gradientUnits="userSpaceOnUse" x1="0" y1="900" x2="1600" y2="0">
@@ -103,6 +104,7 @@
           <path d="M260 1010 C800 970 1160 740 1720 490" stroke-width="52" filter="url(#b14)" opacity=".55"/>
         </g>
         <g class="art__fan" stroke="url(#gl)" stroke-width="1.2" stroke-linecap="round"></g>
+        <g class="art__comets" stroke="#fff" stroke-width="2.6" stroke-linecap="round"></g>
         <g class="art__node">
           <circle class="halo" r="28" fill="#ffb877" fill-opacity=".28"/>
           <circle class="core" r="6" fill="#fff"/>
@@ -112,12 +114,21 @@
     </div>
 
     <div class="wrap hero__in">
-      <div class="hero__copy">
-        <h1 class="hero__t" data-rv>Em 2026 sua empresa perderá <b>mais de R$1&nbsp;milhão</b>, em processos não automatizados, estratégias falhas e dados sem inteligência.</h1>
-        <p class="hero__p" data-rv>A TRACTIA identifica exatamente onde esse dinheiro está se perdendo, e transforma isso em resultado para você através de soluções personalizadas com tecnologia, inteligência artificial e gestão estratégica de negócios.</p>
+      <div class="hero__top" data-rv>
+        <span class="hero__mark" aria-hidden="true"><svg viewBox="1622 921 290 197"><path d="M1912 1117.78L1820.26 921.045H1721.08L1622.7 1117.78H1704.23L1767.48 969.326L1828.85 1117.78H1912Z"/></svg></span>
+        <p class="hero__p">A TRACTIA identifica exatamente onde esse dinheiro está se perdendo, e transforma isso em <b>resultado</b> para você através de soluções personalizadas com tecnologia, inteligência artificial e gestão estratégica de negócios.</p>
+      </div>
+
+      <div class="hero__bottom">
+        <h1 class="hero__t">
+          <span class="hl hero__a"><span class="hi">Em 2026 sua empresa perderá mais de</span></span>
+          <span class="hl hero__b"><span class="hi">R$1&nbsp;milhão</span></span>
+          <span class="hl hero__c"><span class="hi">em <b>processos não automatizados</b>, <b>estratégias falhas</b></span></span>
+          <span class="hl hero__c hero__c2"><span class="hi">e <b>dados sem inteligência</b>.</span></span>
+        </h1>
         <div class="hero__btns" data-rv>
           <a class="btn btn--lg" href="https://wa.me/+5551985725175?text=Ol%C3%A1!%20Gostaria%20de%20mais%20informa%C3%A7%C3%B5es%20sobre%20os%20servi%C3%A7os%20da%20TRACTIA." target="_blank" rel="noopener">Falar com consultor <span class="btn__i" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M5 11 11 5M6.2 5H11v4.8"/></svg></span></a>
-          <a class="btn btn--lg btn--ghost" href="#tracao">Saiba mais <span class="btn__i" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M5 11 11 5M6.2 5H11v4.8"/></svg></span></a>
+          <a class="btn-round" href="#tracao" aria-label="Saiba mais"><svg viewBox="0 0 16 16"><path d="m3.5 6 4.5 4.5L12.5 6"/></svg></a>
         </div>
       </div>
     </div>
@@ -131,11 +142,10 @@
           <h2 class="tr__t" id="tr-t" data-rv>Existe um espaço entre <span class="k">tecnologia</span> e <span class="k">resultado</span>.</h2>
 
           <div class="device__stage"><div class="device">
-            <div class="device__lid"><div class="device__screen">
-            <div class="device__bar" aria-hidden="true"><i></i><i></i><i></i><span class="device__brand"><svg><use href="#logo"/></svg></span></div>
+            <div class="device__lid"><span class="device__btn device__btn--a" aria-hidden="true"></span><span class="device__btn device__btn--b" aria-hidden="true"></span><span class="device__btn device__btn--c" aria-hidden="true"></span><div class="device__screen"><span class="device__cam" aria-hidden="true"></span>
           <div class="chart">
             <div class="chart__plot">
-            <svg class="chart__svg" viewBox="0 0 1000 420" aria-hidden="true" focusable="false" fill="none">
+            <svg class="chart__svg" viewBox="0 0 1000 360" aria-hidden="true" focusable="false" fill="none">
               <defs>
                 <linearGradient id="ca" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0" stop-color="#e2802f" stop-opacity=".5"/>
@@ -147,10 +157,10 @@
                   <stop offset=".6" stop-color="#e2802f"/>
                   <stop offset="1" stop-color="#ffc58a"/>
                 </linearGradient>
-                <clipPath id="cp"><rect class="chart__clip" x="0" y="-20" width="0" height="480"/></clipPath>
+                <clipPath id="cp"><rect class="chart__clip" x="0" y="-20" width="0" height="420"/></clipPath>
               </defs>
               <g class="chart__grid" stroke="#f8fafc" stroke-opacity=".07">
-                <path d="M0 84H1000M0 168H1000M0 252H1000M0 336H1000"/>
+                <path d="M0 72H1000M0 144H1000M0 216H1000M0 288H1000"/>
               </g>
               <path class="chart__area" clip-path="url(#cp)" fill="url(#ca)"/>
               <path class="chart__line" pathLength="1" stroke="url(#cl)" stroke-width="3.2" stroke-linecap="round"/>
@@ -170,7 +180,6 @@
           </div>
             </div>
           </div>
-          <div class="device__base" aria-hidden="true"></div>
         </div>
         </div>
         </div>
@@ -275,6 +284,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.15.0/ScrollTrigger.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.15.0/SplitText.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
-<script src="assets/tractia.js?v=10"></script>
+<script src="assets/tractia.js?v=12"></script>
 </body>
 </html>
