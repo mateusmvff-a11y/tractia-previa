@@ -120,6 +120,26 @@
   buildArtShape();
 
   /* ------------------------------------------------------------------
+     Fundo em video (opcional): se existir assets/media/hero-fundo.mp4, ele assume o lugar do desenho animado.
+     Gere o video numa IA (ver ia/PROMPT-VIDEO-HERO.md) e salve nesse caminho.
+     ------------------------------------------------------------------ */
+  function initHeroVideo() {
+    var v = $('.hero__video'), bg = $('.hero__bg');
+    var saver = navigator.connection && navigator.connection.saveData;
+    if (!v || reduce || saver || !window.fetch) { return; }
+    var src = 'assets/media/hero-fundo.mp4';
+    fetch(src, { method: 'HEAD' }).then(function (r) {
+      if (!r.ok) { return; }
+      v.src = src;
+      v.addEventListener('canplay', function () {
+        bg.classList.add('has-video');
+        var p = v.play(); if (p && p.catch) { p.catch(function () {}); }
+      }, { once: true });
+    }).catch(function () {});
+  }
+  initHeroVideo();
+
+  /* ------------------------------------------------------------------
      Sem GSAP ou com movimento reduzido: tudo pronto
      ------------------------------------------------------------------ */
   function lightZones() {
@@ -238,7 +258,6 @@
     gsap.set(fan, { strokeDasharray: 1, strokeDashoffset: 1 });
     gsap.to(fan, { strokeDashoffset: 0, duration: 2.8, stagger: .07, delay: .7, ease: 'power2.out' });
     gsap.from('.art__beams path', { opacity: 0, duration: 2.2, stagger: .2, delay: .5 });
-    gsap.from('.art__node', { opacity: 0, duration: 1.2, delay: 2.2 });
 
     /* fundo vivo: feixes respiram bem, manchas de luz derivam, cometas sobem pelas linhas */
     gsap.to('.art__beams', { x: -70, y: 34, duration: 7, yoyo: true, repeat: -1, ease: 'sine.inOut' });
@@ -247,17 +266,10 @@
     gsap.to('.blob--1', { x: '-9vw', y: '8vw', scale: 1.18, duration: 9, yoyo: true, repeat: -1, ease: 'sine.inOut' });
     gsap.to('.blob--2', { x: '12vw', y: '-7vw', scale: 1.12, duration: 11, yoyo: true, repeat: -1, ease: 'sine.inOut' });
     gsap.to('.blob--3', { x: '-14vw', y: '10vh', scale: 1.3, duration: 13, yoyo: true, repeat: -1, ease: 'sine.inOut' });
-    gsap.to('.art__node .halo', { attr: { r: 44 }, opacity: .4, duration: 2, yoyo: true, repeat: -1, ease: 'sine.inOut' });
     $$('.art__comets .comet').forEach(function (c, i) {
       gsap.set(c, { strokeDasharray: '0.06 0.94', strokeDashoffset: 0.06, opacity: 0.9 });
       gsap.to(c, { strokeDashoffset: -0.94, duration: 3.4 + (i % 4) * 0.9, ease: 'none', repeat: -1, delay: 1.6 + i * 0.55 });
     });
-    var nd = $('.art__beams .b3');
-    var proxy = { t: 0.62 };
-    gsap.to(proxy, { t: 0.9, duration: 6, yoyo: true, repeat: -1, ease: 'sine.inOut', onUpdate: function () {
-      var p = nd.getPointAtLength(nd.getTotalLength() * proxy.t);
-      $$('.art__node circle').forEach(function (c) { c.setAttribute('cx', p.x.toFixed(1)); c.setAttribute('cy', p.y.toFixed(1)); });
-    } });
 
     /* o fundo acompanha o mouse de leve */
     if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
@@ -289,7 +301,7 @@
          sobe, ele comeca inclinado para tras (22 graus), se endireita, cresce (.94 a 1) e sobe sobre o
          titulo (8% da propria altura), enquanto o titulo sobe bem mais devagar */
       gsap.fromTo(device, { rotateX: 22, scale: 0.94, yPercent: 0 }, {
-        rotateX: 0, scale: 1, yPercent: -8, ease: 'none',
+        rotateX: 0, scale: 1, yPercent: -20, ease: 'none',
         scrollTrigger: { trigger: section, start: 'top bottom', end: 'top top', scrub: 0.6 }
       });
       gsap.fromTo(title, { y: 0 }, {
@@ -300,14 +312,15 @@
       /* ja com a tela fixa: o grafico se desenha na tela do celular e depois vira "tracao" */
       var tl = gsap.timeline({
         defaults: { ease: 'none' },
-        scrollTrigger: { trigger: section, start: 'top top', end: '+=460%', pin: true, scrub: 1.2, anticipatePin: 1 }
+        scrollTrigger: { trigger: section, start: 'top top', end: '+=540%', pin: true, scrub: 1.2, anticipatePin: 1 }
       });
       tl.add(grow, 0.4)
         .to(a, { autoAlpha: 0, y: -50, duration: 0.9, ease: 'power1.out' }, 7.6)
         .fromTo(fim, { autoAlpha: 0 }, { autoAlpha: 1, duration: .5 }, 8.9)
-        .from(big, { y: 90, duration: 1.4, ease: 'power3.out' }, 8.9)
+        .from($('.tr__l1'), { y: 90, duration: 1.4, ease: 'power3.out' }, 8.9)
         .from(txt, { y: 60, autoAlpha: 0, duration: 1.2, ease: 'power3.out' }, 9.6)
-        .to({}, { duration: 1.4 }, 10.8);
+        .from($('.tr__l2'), { autoAlpha: 0, y: 70, scale: 0.94, filter: 'blur(14px)', duration: 1.5, ease: 'power3.out' }, 11.6)
+        .to({}, { duration: 1.2 }, 13.2);
     });
 
     mm.add('(max-width: 899px)', function () {

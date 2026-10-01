@@ -21,7 +21,7 @@
 
 <link rel="preload" href="assets/fonts/cabinet-grotesk-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/general-sans-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/tractia.css?v=13">
+<link rel="stylesheet" href="assets/tractia.css?v=14">
 
 <script>
 /* .js so existe com JavaScript. Se a animacao nao assumir em 7 s, tudo aparece sem ela. */
@@ -74,6 +74,7 @@
   <section class="hero" id="topo">
     <!-- fundo animado: manchas de luz que derivam, feixes que respiram e cometas subindo pelas linhas (gerados no JS) -->
     <div class="hero__bg" aria-hidden="true">
+      <video class="hero__video" muted loop playsinline preload="auto" aria-hidden="true"></video>
       <span class="blob blob--1"></span><span class="blob blob--2"></span><span class="blob blob--3"></span>
       <svg class="art" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" fill="none">
         <defs>
@@ -114,11 +115,6 @@
     </div>
 
     <div class="wrap hero__in">
-      <div class="hero__top" data-rv>
-        <span class="hero__mark" aria-hidden="true"><svg viewBox="1622 921 290 197"><path d="M1912 1117.78L1820.26 921.045H1721.08L1622.7 1117.78H1704.23L1767.48 969.326L1828.85 1117.78H1912Z"/></svg></span>
-        <p class="hero__p">A TRACTIA identifica exatamente onde esse dinheiro está se perdendo, e transforma isso em <b>resultado</b> para você através de soluções personalizadas com tecnologia, inteligência artificial e gestão estratégica de negócios.</p>
-      </div>
-
       <div class="hero__bottom">
         <h1 class="hero__t">
           <span class="hl hero__a"><span class="hi">Em 2026 sua empresa perderá mais de</span></span>
@@ -126,9 +122,16 @@
           <span class="hl hero__c"><span class="hi">em <b>processos não automatizados</b>, <b>estratégias falhas</b></span></span>
           <span class="hl hero__c hero__c2"><span class="hi">e <b>dados sem inteligência</b>.</span></span>
         </h1>
-        <div class="hero__btns" data-rv>
-          <a class="btn btn--lg" href="https://wa.me/+5551985725175?text=Ol%C3%A1!%20Gostaria%20de%20mais%20informa%C3%A7%C3%B5es%20sobre%20os%20servi%C3%A7os%20da%20TRACTIA." target="_blank" rel="noopener">Falar com consultor <span class="btn__i" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M5 11 11 5M6.2 5H11v4.8"/></svg></span></a>
-          <a class="btn-round" href="#tracao" aria-label="Saiba mais"><svg viewBox="0 0 16 16"><path d="m3.5 6 4.5 4.5L12.5 6"/></svg></a>
+
+        <div class="hero__row">
+          <div class="hero__btns" data-rv>
+            <a class="btn btn--lg" href="https://wa.me/+5551985725175?text=Ol%C3%A1!%20Gostaria%20de%20mais%20informa%C3%A7%C3%B5es%20sobre%20os%20servi%C3%A7os%20da%20TRACTIA." target="_blank" rel="noopener">Falar com consultor <span class="btn__i" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M5 11 11 5M6.2 5H11v4.8"/></svg></span></a>
+            <a class="btn-round" href="#tracao" aria-label="Saiba mais"><svg viewBox="0 0 16 16"><path d="m3.5 6 4.5 4.5L12.5 6"/></svg></a>
+          </div>
+          <div class="hero__top" data-rv>
+            <span class="hero__mark" aria-hidden="true"><svg viewBox="1622 921 290 197"><path d="M1912 1117.78L1820.26 921.045H1721.08L1622.7 1117.78H1704.23L1767.48 969.326L1828.85 1117.78H1912Z"/></svg></span>
+            <p class="hero__p">A TRACTIA identifica exatamente onde esse dinheiro está se perdendo, e transforma isso em <b>resultado</b> para você através de soluções personalizadas com tecnologia, inteligência artificial e gestão estratégica de negócios.</p>
+          </div>
         </div>
       </div>
     </div>
@@ -185,7 +188,7 @@
         </div>
 
         <div class="tr__fim">
-          <p class="tr__big">Chamamos isso de <em>tração.</em></p>
+          <p class="tr__big"><span class="tr__l1">Chamamos isso de</span> <em class="tr__l2">tração.</em></p>
           <div class="tr__txt">
             <p class="lead">A Tractia existe para destravar tração na sua máquina de receita.</p>
             <p>Não implementamos simplesmente tecnologia. Aplicamos inteligência onde ela gera impacto econômico para a sua empresa.</p>
@@ -284,6 +287,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.15.0/ScrollTrigger.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.15.0/SplitText.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
-<script src="assets/tractia.js?v=12"></script>
+<script src="assets/tractia.js?v=14"></script>
 </body>
 </html>
