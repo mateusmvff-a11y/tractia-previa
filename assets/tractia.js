@@ -7,6 +7,7 @@
   var root = document.documentElement;
   var $ = function (s, c) { return (c || document).querySelector(s); };
   var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+  var NS = 'http://www.w3.org/2000/svg';
 
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var hasGsap = typeof window.gsap !== 'undefined' && typeof window.ScrollTrigger !== 'undefined';
@@ -43,34 +44,96 @@
   });
 
   /* ------------------------------------------------------------------
-     Video da hero: toca sem som, some e volta ao fim de cada volta,
-     pausa fora da tela. Sem video (menos movimento, economia de dados,
-     erro), fica a foto de capa.
+     Desenhos que nascem de dados (funcionam sem GSAP)
      ------------------------------------------------------------------ */
-  function initVideo() {
-    var v = $('.hero__video');
-    if (!v) { return; }
-    var saver = navigator.connection && navigator.connection.saveData;
-    if (reduce || saver) { return; }
-    v.src = window.innerWidth < 900 ? v.getAttribute('data-sd') : v.getAttribute('data-hd');
-    v.muted = true;
-    var play = function () { var p = v.play(); if (p && p.catch) { p.catch(function () {}); } };
-    v.addEventListener('playing', function () { v.classList.remove('is-out'); v.classList.add('is-on'); });
-    v.addEventListener('timeupdate', function () { if (v.duration && v.duration - v.currentTime < 0.7) { v.classList.add('is-out'); } });
-    v.addEventListener('ended', function () { v.currentTime = 0; play(); });
-    if ('IntersectionObserver' in window) {
-      new IntersectionObserver(function (en) { if (en[0].isIntersecting) { play(); } else { v.pause(); } }).observe(v);
-    }
-    play();
+  function el(name, attrs) {
+    var n = document.createElementNS(NS, name);
+    Object.keys(attrs).forEach(function (k) { n.setAttribute(k, attrs[k]); });
+    return n;
   }
-  initVideo();
+
+  /* grafico da secao "espaco entre tecnologia e resultado": curva suave por 7 pontos */
+  var VH = 320;
+  var H = [0.07, 0.14, 0.23, 0.36, 0.53, 0.74, 0.96];
+  var chart = { pts: [], len: 0, line: null, clip: null, tip: null, cols: [] };
+  function curve(P) {
+    var d = 'M' + P[0][0] + ' ' + P[0][1];
+    for (var i = 0; i < P.length - 1; i++) {
+      var p0 = P[Math.max(i - 1, 0)], p1 = P[i], p2 = P[i + 1], p3 = P[Math.min(i + 2, P.length - 1)];
+      d += ' C' + (p1[0] + (p2[0] - p0[0]) / 6).toFixed(1) + ' ' + (p1[1] + (p2[1] - p0[1]) / 6).toFixed(1) +
+           ' ' + (p2[0] - (p3[0] - p1[0]) / 6).toFixed(1) + ' ' + (p2[1] - (p3[1] - p1[1]) / 6).toFixed(1) +
+           ' ' + p2[0] + ' ' + p2[1];
+    }
+    return d;
+  }
+  function buildChartShape() {
+    var line = $('.chart__line');
+    if (!line) { return; }
+    var pts = H.map(function (h, i) { return [Math.round((i + 0.5) / 7 * 1000), Math.round(VH - (24 + h * 268))]; });
+    var P = [[0, pts[0][1] + 16]].concat(pts, [[1000, pts[6][1] - 16]]);
+    var d = curve(P);
+    line.setAttribute('d', d);
+    $('.chart__area').setAttribute('d', d + ' L1000 ' + VH + ' L0 ' + VH + ' Z');
+    chart.pts = pts;
+    chart.line = line;
+    chart.len = line.getTotalLength();
+    chart.clip = $('.chart__clip');
+    chart.tip = $('.chart__tip');
+    chart.cols = $$('.chart__c');
+    chart.cols.forEach(function (c, i) { c.style.setProperty('--y', ((VH - pts[i][1]) / VH * 100).toFixed(2) + '%'); });
+  }
+  /* desenha o grafico ate a fracao p (0..1) do comprimento da curva */
+  function renderChart(p) {
+    if (!chart.line) { return; }
+    var pt = chart.line.getPointAtLength(chart.len * p);
+    chart.line.style.strokeDashoffset = String(1 - p);
+    chart.line.style.opacity = p < 0.003 ? '0' : '1';
+    chart.clip.setAttribute('width', (pt.x + 2).toFixed(1));
+    chart.tip.style.left = (pt.x / 10) + '%';
+    chart.tip.style.top = (pt.y / VH * 100) + '%';
+    chart.tip.style.opacity = p < 0.003 ? '0' : '1';
+    chart.cols.forEach(function (c, i) { c.classList.toggle('on', pt.x >= chart.pts[i][0] - 8); });
+    var kw = $$('.tr__t .k');
+    if (kw[0]) { kw[0].classList.toggle('on', p > 0.02); }
+    if (kw[1]) { kw[1].classList.toggle('on', p > 0.985); }
+  }
+
+  /* hero: leque de linhas finas subindo, na mesma curva dos feixes */
+  function buildArtShape() {
+    var g = $('.art__fan');
+    if (!g) { return; }
+    var n = 16;
+    for (var i = 0; i < n; i++) {
+      var t = i / (n - 1);
+      var d = 'M-60 ' + (900 + (t - 0.5) * 44) +
+        ' C' + (230 + t * 70) + ' ' + (800 - t * 90) +
+        ' ' + (440 + t * 90) + ' ' + (520 - t * 270) +
+        ' 860 ' + (-70 + t * 340);
+      g.appendChild(el('path', { d: d, pathLength: '1' }));
+    }
+    var b3 = $('.art__beams .b3');
+    var pt = b3.getPointAtLength(b3.getTotalLength() * 0.8);
+    $$('.art__node circle').forEach(function (c) { c.setAttribute('cx', pt.x.toFixed(1)); c.setAttribute('cy', pt.y.toFixed(1)); });
+  }
+  buildChartShape();
+  buildArtShape();
 
   /* ------------------------------------------------------------------
      Sem GSAP ou com movimento reduzido: tudo pronto
      ------------------------------------------------------------------ */
+  function lightZones() {
+    var on = false;
+    ['.hero', '.sol'].forEach(function (s) {
+      var r = $(s).getBoundingClientRect();
+      if (r.top <= 40 && r.bottom > 40) { on = true; }
+    });
+    nav.classList.toggle('on-light', on);
+  }
   function basics() {
     root.classList.add('no-anim');
-    var onScroll = function () { nav.classList.toggle('is-solid', window.scrollY > 40); };
+    renderChart(1);
+    $$('.art__fan path').forEach(function (p) { p.style.strokeDasharray = 'none'; });
+    var onScroll = function () { nav.classList.toggle('is-solid', window.scrollY > 40); lightZones(); };
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
   }
@@ -92,7 +155,7 @@
     lenis.stop();
   }
 
-  /* linhas com mascara que sobem; `trigger` define quando (ou null = ja) */
+  /* linhas com mascara que sobem; opts.now = ja, sem esperar a rolagem */
   function revealLines(el, opts) {
     opts = opts || {};
     gsap.set(el, { visibility: 'visible' });
@@ -143,49 +206,55 @@
     });
   }
 
-  /* o menu fica claro sobre a secao clara; criado depois da tela fixa para contar o espaco dela */
+  /* o menu fica claro sobre as secoes claras; criado depois da tela fixa para contar o espaco dela */
   function buildNavTheme() {
-    ScrollTrigger.create({ trigger: '.sol', start: 'top 40px', end: 'bottom 40px', onToggle: function (self) { nav.classList.toggle('on-light', self.isActive); } });
+    var zones = {};
+    ['.hero', '.sol'].forEach(function (s) {
+      ScrollTrigger.create({
+        trigger: s, start: 'top 40px', end: 'bottom 40px',
+        onToggle: function (self) {
+          zones[s] = self.isActive;
+          nav.classList.toggle('on-light', !!(zones['.hero'] || zones['.sol']));
+        }
+      });
+    });
   }
 
   /* ---------- hero ---------- */
   function buildHero() {
     gsap.from(nav, { y: -24, autoAlpha: 0, duration: 1, delay: .2 });
-    gsap.from('.hero__panel', { xPercent: 6, autoAlpha: 0, duration: 1.5, delay: .1, ease: 'power3.out' });
     revealLines($('.hero__t'), { now: true, delay: .3 });
     fadeUp($$('.hero__p, .hero__btns'), { now: true, delay: .9, y: 28, stagger: .14 });
+
+    gsap.from('.hero__card', { y: 70, autoAlpha: 0, duration: 1.6, delay: .25, ease: 'power3.out' });
+
+    /* linhas finas se desenham; feixes acendem e respiram devagar */
+    var fan = $$('.art__fan path');
+    gsap.set(fan, { strokeDasharray: 1, strokeDashoffset: 1 });
+    gsap.to(fan, { strokeDashoffset: 0, duration: 2.8, stagger: .07, delay: .7, ease: 'power2.out' });
+    gsap.from('.art__beams path', { opacity: 0, duration: 2.2, stagger: .2, delay: .5 });
+    gsap.from('.art__node', { opacity: 0, duration: 1.2, delay: 2.2 });
+    gsap.to('.art__beams', { x: -18, y: 12, duration: 6, yoyo: true, repeat: -1, ease: 'sine.inOut' });
+    gsap.to('.art__node .halo', { attr: { r: 40 }, opacity: .35, duration: 2.4, yoyo: true, repeat: -1, ease: 'sine.inOut' });
   }
 
-  /* ---------- tracao: a escada se enche com a rolagem, depois vira "tracao" ---------- */
+  /* ---------- tracao: o grafico sobe com a rolagem, depois vira "tracao" ---------- */
   function buildTracao() {
     var section = $('.tr');
-    var steps = $$('.steps__s');
-    var fills = $$('.steps__fill');
-    var kw = $$('.tr__t .k');
     var mm = gsap.matchMedia();
 
-    /* acende o rotulo de cada degrau conforme o preenchimento chega nele */
-    function light(p) {
-      steps.forEach(function (s, i) { s.classList.toggle('on', (i + 0.35) / steps.length <= p + 0.001); });
-      if (kw[0]) { kw[0].classList.toggle('on', p > 0.02); }
-      if (kw[1]) { kw[1].classList.toggle('on', p >= 0.999); }
-    }
-    light(0);
-
+    renderChart(0);
     revealLines($('.tr__t'));
 
     mm.add('(min-width: 900px)', function () {
       var a = $('.tr__a'), fim = $('.tr__fim'), big = $('.tr__big'), txt = $('.tr__txt');
-      var grow = gsap.timeline({ defaults: { ease: 'none' } });
-      grow.fromTo(fills, { scaleY: 0 }, { scaleY: 1, duration: 1, stagger: 0.9 });
+      var proxy = { p: 0 };
+      var grow = gsap.timeline();
+      grow.to(proxy, { p: 1, duration: 6, ease: 'power1.inOut', onUpdate: function () { renderChart(proxy.p); } });
 
       var tl = gsap.timeline({
         defaults: { ease: 'none' },
-        scrollTrigger: {
-          trigger: section, start: 'top top', end: '+=420%', pin: true, scrub: .6, anticipatePin: 1,
-          onUpdate: function () { light(grow.progress()); },
-          onRefresh: function () { light(grow.progress()); }
-        }
+        scrollTrigger: { trigger: section, start: 'top top', end: '+=420%', pin: true, scrub: 1.1, anticipatePin: 1 }
       });
       tl.add(grow, 0.3)
         .to(a, { autoAlpha: 0, y: -50, duration: 0.8, ease: 'power1.out' }, 7.3)
@@ -196,12 +265,10 @@
     });
 
     mm.add('(max-width: 899px)', function () {
-      gsap.fromTo(fills, { scaleX: 0 }, {
-        scaleX: 1, ease: 'none', stagger: 0.9,
-        scrollTrigger: {
-          trigger: '.steps', start: 'top 80%', end: 'bottom 55%', scrub: .5,
-          onUpdate: function (self) { light(self.progress); }
-        }
+      var proxy = { p: 0 };
+      gsap.to(proxy, {
+        p: 1, ease: 'none', onUpdate: function () { renderChart(proxy.p); },
+        scrollTrigger: { trigger: '.chart', start: 'top 80%', end: 'bottom 40%', scrub: 1 }
       });
       revealLines($('.tr__big'));
       fadeUp($$('.tr__txt > *'), { trigger: '.tr__txt' });

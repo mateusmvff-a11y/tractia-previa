@@ -21,7 +21,7 @@
 
 <link rel="preload" href="assets/fonts/cabinet-grotesk-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/general-sans-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/tractia.css?v=4">
+<link rel="stylesheet" href="assets/tractia.css?v=8">
 
 <script>
 /* .js so existe com JavaScript. Se a animacao nao assumir em 7 s, tudo aparece sem ela. */
@@ -58,7 +58,7 @@
   </symbol>
 </svg>
 
-<header class="nav" id="nav">
+<header class="nav on-light" id="nav">
   <a class="logo" href="#topo" aria-label="TRACTIA, início"><svg aria-hidden="true"><use href="#logo"/></svg></a>
   <nav class="nav__links" aria-label="Principal">
     <a href="#tracao">Tração</a>
@@ -78,19 +78,47 @@
         <p class="hero__p" data-rv>A TRACTIA identifica exatamente onde esse dinheiro está se perdendo, e transforma isso em resultado para você através de soluções personalizadas com tecnologia, inteligência artificial e gestão estratégica de negócios.</p>
         <div class="hero__btns" data-rv>
           <a class="btn btn--lg" href="https://wa.me/+5551985725175?text=Ol%C3%A1!%20Gostaria%20de%20mais%20informa%C3%A7%C3%B5es%20sobre%20os%20servi%C3%A7os%20da%20TRACTIA." target="_blank" rel="noopener">Falar com consultor <span class="btn__i" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M5 11 11 5M6.2 5H11v4.8"/></svg></span></a>
-          <a class="btn btn--lg btn--light" href="#tracao">Saiba mais <span class="btn__i" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M5 11 11 5M6.2 5H11v4.8"/></svg></span></a>
+          <a class="btn btn--lg btn--ghost" href="#tracao">Saiba mais <span class="btn__i" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M5 11 11 5M6.2 5H11v4.8"/></svg></span></a>
         </div>
       </div>
     </div>
 
-    <div class="hero__panel" aria-hidden="true">
-      <div class="hero__edge"></div>
-      <div class="hero__clip">
-        <img class="hero__poster" src="assets/media/hero-poster.jpg" alt="" width="1920" height="1080" fetchpriority="high">
-        <video class="hero__video" muted playsinline preload="auto" data-hd="assets/media/hero-1080.mp4" data-sd="assets/media/hero-720.mp4"></video>
-        <div class="hero__tint"></div>
-        <div class="hero__shade"></div>
-      </div>
+    <!-- painel de luz: feixes subindo (a ideia de tracao da identidade). Os feixes finos sao gerados no JS -->
+    <div class="hero__card" aria-hidden="true">
+      <svg class="art" viewBox="0 0 800 900" preserveAspectRatio="xMidYMid slice" fill="none">
+        <defs>
+          <linearGradient id="gb" gradientUnits="userSpaceOnUse" x1="0" y1="900" x2="800" y2="0">
+            <stop offset="0" stop-color="#b45309" stop-opacity="0"/>
+            <stop offset=".35" stop-color="#e2802f"/>
+            <stop offset=".78" stop-color="#ffb877"/>
+            <stop offset="1" stop-color="#fff0dc"/>
+          </linearGradient>
+          <linearGradient id="gl" gradientUnits="userSpaceOnUse" x1="0" y1="900" x2="800" y2="0">
+            <stop offset="0" stop-color="#ffb877" stop-opacity="0"/>
+            <stop offset=".5" stop-color="#ffb877" stop-opacity=".55"/>
+            <stop offset="1" stop-color="#fff" stop-opacity=".9"/>
+          </linearGradient>
+          <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse"><path d="M50 0H0V50" stroke="#fff" stroke-opacity=".05"/></pattern>
+          <filter id="b30" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="30"/></filter>
+          <filter id="b14" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="14"/></filter>
+          <filter id="b4" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3.5"/></filter>
+        </defs>
+        <rect width="800" height="900" fill="url(#grid)"/>
+        <g class="art__beams" stroke="url(#gb)" stroke-linecap="round">
+          <path class="b1" d="M-60 900 C250 770 480 360 880 100" stroke-width="170" filter="url(#b30)" opacity=".55"/>
+          <path class="b2" d="M-60 900 C250 770 480 360 880 100" stroke-width="84" filter="url(#b14)" opacity=".85"/>
+          <path class="b3" d="M-60 900 C250 770 480 360 880 100" stroke-width="9" filter="url(#b4)"/>
+        </g>
+        <g class="art__beams art__beams--2" stroke="url(#gb)" stroke-linecap="round">
+          <path d="M140 980 C400 880 600 720 900 560" stroke-width="120" filter="url(#b30)" opacity=".4"/>
+          <path d="M140 980 C400 880 600 720 900 560" stroke-width="46" filter="url(#b14)" opacity=".6"/>
+        </g>
+        <g class="art__fan" stroke="url(#gl)" stroke-width="1.1" stroke-linecap="round"></g>
+        <g class="art__node">
+          <circle class="halo" r="26" fill="#ffb877" fill-opacity=".28"/>
+          <circle class="core" r="5.5" fill="#fff"/>
+        </g>
+      </svg>
     </div>
   </section>
 
@@ -101,15 +129,41 @@
         <div class="tr__a">
           <h2 class="tr__t" id="tr-t" data-rv>Existe um espaço entre <span class="k">tecnologia</span> e <span class="k">resultado</span>.</h2>
 
-          <ol class="steps" aria-label="Do investimento em tecnologia ao resultado financeiro">
-            <li class="steps__s steps__s--end" style="--h:.22"><span class="steps__fill"></span><span class="steps__l">Tecnologia implementada</span></li>
-            <li class="steps__s" style="--h:.34"><span class="steps__fill"></span><span class="steps__l">Processos</span></li>
-            <li class="steps__s" style="--h:.46"><span class="steps__fill"></span><span class="steps__l">Dados</span></li>
-            <li class="steps__s" style="--h:.58"><span class="steps__fill"></span><span class="steps__l">Inteligência</span></li>
-            <li class="steps__s" style="--h:.7"><span class="steps__fill"></span><span class="steps__l">Estratégia</span></li>
-            <li class="steps__s" style="--h:.84"><span class="steps__fill"></span><span class="steps__l">Resultado</span></li>
-            <li class="steps__s steps__s--end" style="--h:1"><span class="steps__fill"></span><span class="steps__l">Resultado financeiro</span></li>
-          </ol>
+          <div class="chart">
+            <div class="chart__plot">
+            <svg class="chart__svg" viewBox="0 0 1000 320" aria-hidden="true" focusable="false" fill="none">
+              <defs>
+                <linearGradient id="ca" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#e2802f" stop-opacity=".5"/>
+                  <stop offset=".6" stop-color="#b45309" stop-opacity=".16"/>
+                  <stop offset="1" stop-color="#b45309" stop-opacity="0"/>
+                </linearGradient>
+                <linearGradient id="cl" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1000" y2="0">
+                  <stop offset="0" stop-color="#b45309"/>
+                  <stop offset=".6" stop-color="#e2802f"/>
+                  <stop offset="1" stop-color="#ffc58a"/>
+                </linearGradient>
+                <clipPath id="cp"><rect class="chart__clip" x="0" y="-20" width="0" height="360"/></clipPath>
+              </defs>
+              <g class="chart__grid" stroke="#f8fafc" stroke-opacity=".07">
+                <path d="M0 64H1000M0 128H1000M0 192H1000M0 256H1000"/>
+              </g>
+              <path class="chart__area" clip-path="url(#cp)" fill="url(#ca)"/>
+              <path class="chart__line" pathLength="1" stroke="url(#cl)" stroke-width="3.2" stroke-linecap="round"/>
+            </svg>
+            <span class="chart__tip" aria-hidden="true"></span>
+            </div>
+
+            <ol class="chart__cols" aria-label="Do investimento em tecnologia ao resultado financeiro">
+              <li class="chart__c chart__c--end"><span class="chart__guide"></span><span class="chart__dot"></span><span class="chart__l">Tecnologia implementada</span></li>
+              <li class="chart__c"><span class="chart__guide"></span><span class="chart__dot"></span><span class="chart__l">Processos</span></li>
+              <li class="chart__c"><span class="chart__guide"></span><span class="chart__dot"></span><span class="chart__l">Dados</span></li>
+              <li class="chart__c"><span class="chart__guide"></span><span class="chart__dot"></span><span class="chart__l">Inteligência</span></li>
+              <li class="chart__c"><span class="chart__guide"></span><span class="chart__dot"></span><span class="chart__l">Estratégia</span></li>
+              <li class="chart__c"><span class="chart__guide"></span><span class="chart__dot"></span><span class="chart__l">Resultado</span></li>
+              <li class="chart__c chart__c--end"><span class="chart__guide"></span><span class="chart__dot"></span><span class="chart__l">Resultado financeiro</span></li>
+            </ol>
+          </div>
         </div>
 
         <div class="tr__fim">
@@ -212,6 +266,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.15.0/ScrollTrigger.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.15.0/SplitText.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
-<script src="assets/tractia.js?v=4"></script>
+<script src="assets/tractia.js?v=8"></script>
 </body>
 </html>
