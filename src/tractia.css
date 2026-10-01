@@ -209,17 +209,13 @@ em { font-style: normal; }
 .chart__c.on .chart__l { color: #fff; }
 .chart__c.on .chart__guide { border-color: rgba(255,184,119,.45); }
 
-.tr__fim { position: relative; display: grid; grid-template-columns: auto minmax(0, 28rem); align-items: center; justify-content: center; column-gap: clamp(2rem, 4vw, 4.5rem); text-align: left; }
-.tr__head { display: block; }
-.tr__l1, .tr__l2 { display: block; width: max-content; margin: 0; font-family: var(--f-disp); font-weight: 800; font-size: clamp(2.2rem, 5vw, 5.6rem); line-height: .98; letter-spacing: -.045em; }
+.tr__fim { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.tr__l1, .tr__l2 { display: block; width: max-content; margin: 0; font-family: var(--f-disp); font-weight: 800; font-size: clamp(2.4rem, 6.3vw, 7.6rem); line-height: .98; letter-spacing: -.045em; }
 .tr__l2 em { color: var(--or-t); }
-.tr__side { display: grid; gap: 1.3rem; justify-items: start; }
-.lock { width: 3.3rem; height: auto; overflow: visible; }
-.lock__body { transition: fill .6s ease; }
-.tr__txt { display: grid; gap: .8rem; text-align: left; color: rgba(248,250,252,.72); font-size: clamp(.95rem, 1.05vw, 1.05rem); line-height: 1.55; }
+.tr__row2 { display: flex; align-items: center; justify-content: center; gap: clamp(1.4rem, 3vw, 3.4rem); }
+.tr__txt { max-width: 33rem; display: grid; gap: .8rem; text-align: left; color: rgba(248,250,252,.72); font-size: clamp(.95rem, 1.05vw, 1.05rem); line-height: 1.55; }
 .tr__txt .lead { font-family: var(--f-disp); font-weight: 500; font-size: clamp(1.2rem, 1.7vw, 1.6rem); line-height: 1.22; letter-spacing: -.015em; color: #fff; }
 @media (min-width: 700px) { .tr__l1, .tr__l2 { white-space: nowrap; } }
-@media (max-width: 1099px) { .tr__fim { grid-template-columns: 1fr; justify-items: center; row-gap: 1.8rem; text-align: center; } .tr__head { text-align: center; } .tr__l1, .tr__l2 { margin-inline: auto; } .tr__side { justify-items: center; } .tr__txt { text-align: center; max-width: 34rem; } }
 
 /* com JS e tela larga, as duas metades dividem o mesmo palco */
 @media (min-width: 900px) {
@@ -345,4 +341,8 @@ em { font-style: normal; }
 .hero__bg.has-shader .art, .hero__bg.has-shader .blob { display: none; }
 @media (max-width: 899px) {
   .tr__l1, .tr__l2 { font-size: clamp(2.6rem, 13vw, 4.2rem); }
+}
+@media (max-width: 899px) {
+  .tr__row2 { flex-direction: column; gap: 1.4rem; }
+  .tr__txt { text-align: center; max-width: none; }
 }

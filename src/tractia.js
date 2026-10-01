@@ -423,30 +423,21 @@
       /* ja com a tela fixa: o grafico se desenha na tela do celular e depois vira "tracao" */
       var tl = gsap.timeline({
         defaults: { ease: 'none' },
-        scrollTrigger: { trigger: section, start: 'top top', end: '+=640%', pin: true, scrub: 1.2, anticipatePin: 1 }
+        scrollTrigger: { trigger: section, start: 'top top', end: '+=560%', pin: true, scrub: 1.2, anticipatePin: 1 }
       });
-      /* "Chamamos isso de" nasce sozinho no centro; depois surge "tracao."; o titulo se desloca para a esquerda
-         e entra o texto, com o cadeado se abrindo (destravar) */
-      var head = $('.tr__head'), l1 = $('.tr__l1'), l2 = $('.tr__l2'), side = $('.tr__side');
-      var shackle = $('.lock__shackle'), lbody = $('.lock__body'), ring = $('.lock__ring');
-      var wide = function () { return window.innerWidth >= 1100; };
-      var headDx = function () { return wide() ? fim.clientWidth / 2 - (head.offsetLeft + head.offsetWidth / 2) : 0; };
-      var l2Dx = function () { return wide() ? (l1.offsetWidth - l2.offsetWidth) / 2 : 0; };
-      gsap.set(shackle, { transformOrigin: '21px 34px' });
+      /* "Chamamos isso de" nasce no centro; surge "tracao." tambem centralizada embaixo; ela desliza para a
+         esquerda (justifica) e so entao o texto aparece ao lado */
+      var row2 = $('.tr__row2'), l1 = $('.tr__l1'), l2 = $('.tr__l2');
+      var l2Dx = function () { return fim.clientWidth / 2 - (row2.offsetLeft + l2.offsetWidth / 2); };
 
       tl.add(grow, 0.4)
         .to(a, { autoAlpha: 0, y: -50, duration: 0.9, ease: 'power1.out' }, 7.6)
         .fromTo(fim, { autoAlpha: 0 }, { autoAlpha: 1, duration: .5 }, 8.9)
-        .fromTo(head, { x: headDx }, { x: 0, duration: 1.7, ease: 'power3.inOut', invalidateOnRefresh: true }, 11.6)
-        .fromTo(l2, { x: l2Dx }, { x: 0, duration: 1.7, ease: 'power3.inOut', invalidateOnRefresh: true }, 11.6)
         .from(l1, { y: 90, duration: 1.4, ease: 'power3.out' }, 8.9)
+        .fromTo(l2, { x: l2Dx }, { x: 0, duration: 1.6, ease: 'power3.inOut', invalidateOnRefresh: true }, 11.6)
         .from(l2, { autoAlpha: 0, y: 70, scale: 0.94, filter: 'blur(14px)', duration: 1.5, ease: 'power3.out' }, 10.0)
-        .from(side, { autoAlpha: 0, x: 50, duration: 1.2, ease: 'power3.out' }, 12.3)
-        .to(shackle, { y: -5, duration: 0.5, ease: 'power2.out' }, 13.2)
-        .to(shackle, { rotation: -32, duration: 1.0, ease: 'back.out(1.7)' }, 13.6)
-        .to(lbody, { stroke: '#ffb877', fill: 'rgba(255,184,119,.2)', duration: 0.7 }, 13.6)
-        .fromTo(ring, { attr: { r: 14 }, opacity: 0.8 }, { attr: { r: 34 }, opacity: 0, duration: 1.0, ease: 'power2.out' }, 13.7)
-        .to({}, { duration: 1.4 }, 14.9);
+        .from(txt, { autoAlpha: 0, x: 40, duration: 1.2, ease: 'power3.out' }, 12.6)
+        .to({}, { duration: 1.6 }, 13.8);
     });
 
     mm.add('(max-width: 899px)', function () {
@@ -456,11 +447,7 @@
         scrollTrigger: { trigger: '.chart', start: 'top 80%', end: 'bottom 40%', scrub: 1 }
       });
       fadeUp($$('.tr__l1, .tr__l2'), { trigger: '.tr__fim' });
-      fadeUp($$('.tr__side > *'), { trigger: '.tr__side' });
-      gsap.set('.lock__shackle', { transformOrigin: '21px 34px' });
-      gsap.timeline({ scrollTrigger: { trigger: '.tr__side', start: 'top 75%', once: true } })
-        .to('.lock__shackle', { y: -5, duration: 0.4 }, 0.5).to('.lock__shackle', { rotation: -32, duration: 0.9, ease: 'back.out(1.7)' }, 0.8)
-        .to('.lock__body', { stroke: '#ffb877', fill: 'rgba(255,184,119,.2)', duration: 0.6 }, 0.8);
+      fadeUp($$('.tr__txt > *'), { trigger: '.tr__txt' });
     });
   }
 
