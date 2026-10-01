@@ -346,6 +346,12 @@
         }
       });
     });
+    /* menu: destaca o link da secao atual */
+    $$('.nav__links a').forEach(function (a) {
+      var sec = $(a.getAttribute('href'));
+      if (!sec) { return; }
+      ScrollTrigger.create({ trigger: sec, start: 'top 55%', end: 'bottom 55%', onToggle: function (s) { a.classList.toggle('is-current', s.isActive); } });
+    });
   }
 
   /* ---------- hero ---------- */
@@ -359,6 +365,7 @@
     gsap.from('.hero__btns', { y: 28, autoAlpha: 0, duration: 1.1, delay: 1.2 });
 
     gsap.from('.hero__bg', { opacity: 0, duration: 1.8, ease: 'power2.out' });
+    if ('IntersectionObserver' in window) { new IntersectionObserver(function (en) { $('.hero').classList.toggle('is-off', !en[0].isIntersecting); }).observe($('.hero')); }
 
     var useArt = !$('.hero__bg').classList.contains('has-shader');
     if (useArt) {
@@ -441,10 +448,18 @@
     });
 
     mm.add('(max-width: 899px)', function () {
+      var device = $('.device'), title = $('.tr__t');
+      /* mesma animacao do desktop, com o celular em pe: inclina para tras, se endireita e sobe sobre o titulo */
+      gsap.fromTo(device, { rotateX: 20, scale: 0.94, yPercent: 0 }, {
+        rotateX: 0, scale: 1, yPercent: -4, ease: 'none',
+        scrollTrigger: { trigger: '.device__stage', start: 'top 98%', end: 'top 45%', scrub: 0.6 }
+      });
+      gsap.fromTo(title, { y: 0 }, { y: -14, ease: 'none', scrollTrigger: { trigger: '.device__stage', start: 'top 98%', end: 'top 45%', scrub: 0.6 } });
+      /* o grafico se desenha dentro da tela enquanto o aparelho atravessa a janela */
       var proxy = { p: 0 };
       gsap.to(proxy, {
         p: 1, ease: 'none', onUpdate: function () { renderChart(proxy.p); },
-        scrollTrigger: { trigger: '.chart', start: 'top 80%', end: 'bottom 40%', scrub: 1 }
+        scrollTrigger: { trigger: '.device', start: 'top 62%', end: 'bottom 52%', scrub: 1 }
       });
       fadeUp($$('.tr__l1, .tr__l2'), { trigger: '.tr__fim' });
       fadeUp($$('.tr__txt > *'), { trigger: '.tr__txt' });
@@ -468,10 +483,10 @@
     var items = $$('.qual__list li');
     items.forEach(function (li) {
       gsap.fromTo(li,
-        { opacity: .18, x: 0 },
+        { opacity: .3, x: 0 },
         { opacity: 1, ease: 'none', scrollTrigger: { trigger: li, start: 'top 82%', end: 'top 52%', scrub: .5 } });
       gsap.to(li, {
-        opacity: .32, ease: 'none', immediateRender: false,
+        opacity: .42, ease: 'none', immediateRender: false,
         scrollTrigger: { trigger: li, start: 'top 26%', end: 'top 6%', scrub: .5 }
       });
     });
@@ -513,7 +528,8 @@
     catch (err) {
       if (window.console) { console.error('[tractia] animacao desligada:', err); }
       gsap.killTweensOf('*');
-      ScrollTrigger.getAll().forEach(function (st) { st.kill(); });
+      $$('body *').forEach(function (n) { if (n.style && n.style.length && !n.closest('svg')) { n.style.opacity = ''; n.style.visibility = ''; n.style.transform = ''; n.style.filter = ''; } });
+      ScrollTrigger.getAll().forEach(function (st) { st.kill(true); });
       if (lenis) { lenis.destroy(); lenis = null; }
       basics();
     }
