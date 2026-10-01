@@ -53,7 +53,7 @@
   }
 
   /* grafico da secao "espaco entre tecnologia e resultado": curva suave por 7 pontos */
-  var VH = 320;
+  var VH = 420;
   var H = [0.07, 0.14, 0.23, 0.36, 0.53, 0.74, 0.96];
   var chart = { pts: [], len: 0, line: null, clip: null, tip: null, cols: [] };
   function curve(P) {
@@ -105,10 +105,10 @@
     var n = 16;
     for (var i = 0; i < n; i++) {
       var t = i / (n - 1);
-      var d = 'M-60 ' + (900 + (t - 0.5) * 44) +
-        ' C' + (230 + t * 70) + ' ' + (800 - t * 90) +
-        ' ' + (440 + t * 90) + ' ' + (520 - t * 270) +
-        ' 860 ' + (-70 + t * 340);
+      var d = 'M-120 ' + (930 + (t - 0.5) * 56) +
+        ' C' + (520 + t * 90) + ' ' + (890 - t * 50) +
+        ' ' + (920 + t * 110) + ' ' + (470 - t * 190) +
+        ' 1720 ' + (-90 + t * 380);
       g.appendChild(el('path', { d: d, pathLength: '1' }));
     }
     var b3 = $('.art__beams .b3');
@@ -123,7 +123,7 @@
      ------------------------------------------------------------------ */
   function lightZones() {
     var on = false;
-    ['.hero', '.sol'].forEach(function (s) {
+    ['.sol'].forEach(function (s) {
       var r = $(s).getBoundingClientRect();
       if (r.top <= 40 && r.bottom > 40) { on = true; }
     });
@@ -209,7 +209,7 @@
   /* o menu fica claro sobre as secoes claras; criado depois da tela fixa para contar o espaco dela */
   function buildNavTheme() {
     var zones = {};
-    ['.hero', '.sol'].forEach(function (s) {
+    ['.sol'].forEach(function (s) {
       ScrollTrigger.create({
         trigger: s, start: 'top 40px', end: 'bottom 40px',
         onToggle: function (self) {
@@ -226,7 +226,7 @@
     revealLines($('.hero__t'), { now: true, delay: .3 });
     fadeUp($$('.hero__p, .hero__btns'), { now: true, delay: .9, y: 28, stagger: .14 });
 
-    gsap.from('.hero__card', { y: 70, autoAlpha: 0, duration: 1.6, delay: .25, ease: 'power3.out' });
+    gsap.from('.hero__bg', { opacity: 0, duration: 1.8, ease: 'power2.out' });
 
     /* linhas finas se desenham; feixes acendem e respiram devagar */
     var fan = $$('.art__fan path');
@@ -248,20 +248,29 @@
 
     mm.add('(min-width: 900px)', function () {
       var a = $('.tr__a'), fim = $('.tr__fim'), big = $('.tr__big'), txt = $('.tr__txt');
+      var title = $('.tr__t'), device = $('.device'), lid = $('.device__lid');
       var proxy = { p: 0 };
       var grow = gsap.timeline();
-      grow.to(proxy, { p: 1, duration: 6, ease: 'power1.inOut', onUpdate: function () { renderChart(proxy.p); } });
+      grow.to(proxy, { p: 1, duration: 6.2, ease: 'power1.inOut', onUpdate: function () { renderChart(proxy.p); } });
+
+      /* laptop comeca com a tampa tombada para tras, mais baixo e menor; se levanta enquanto o grafico sobe */
+      gsap.set(lid, { rotateX: 34 });
+      gsap.set(device, { y: 120, scale: 0.9 });
+      gsap.set(title, { y: 30 });
 
       var tl = gsap.timeline({
         defaults: { ease: 'none' },
-        scrollTrigger: { trigger: section, start: 'top top', end: '+=420%', pin: true, scrub: 1.1, anticipatePin: 1 }
+        scrollTrigger: { trigger: section, start: 'top top', end: '+=520%', pin: true, scrub: 1.2, anticipatePin: 1 }
       });
-      tl.add(grow, 0.3)
-        .to(a, { autoAlpha: 0, y: -50, duration: 0.8, ease: 'power1.out' }, 7.3)
-        .fromTo(fim, { autoAlpha: 0 }, { autoAlpha: 1, duration: .5 }, 8.5)
-        .from(big, { y: 90, duration: 1.4, ease: 'power3.out' }, 8.5)
-        .from(txt, { y: 60, autoAlpha: 0, duration: 1.2, ease: 'power3.out' }, 9.2)
-        .to({}, { duration: 1.4 }, 10.4);
+      tl.to(lid, { rotateX: 0, duration: 3.2, ease: 'power2.out' }, 0)
+        .to(device, { y: 0, scale: 1, duration: 3.2, ease: 'power2.out' }, 0)
+        .to(title, { y: 0, duration: 3.2, ease: 'power2.out' }, 0)
+        .add(grow, 2.2)
+        .to(a, { autoAlpha: 0, y: -50, duration: 0.9, ease: 'power1.out' }, 9.4)
+        .fromTo(fim, { autoAlpha: 0 }, { autoAlpha: 1, duration: .5 }, 10.6)
+        .from(big, { y: 90, duration: 1.4, ease: 'power3.out' }, 10.6)
+        .from(txt, { y: 60, autoAlpha: 0, duration: 1.2, ease: 'power3.out' }, 11.3)
+        .to({}, { duration: 1.4 }, 12.5);
     });
 
     mm.add('(max-width: 899px)', function () {
