@@ -362,3 +362,12 @@ em { font-style: normal; }
 /* link do menu da secao em que voce esta */
 .nav__links a.is-current { opacity: 1; color: var(--or-t); }
 .nav.on-light .nav__links a.is-current { color: var(--or-d); }
+
+/* celular (revisao): curva mais alta, aparelho menos comprido, recortes estaveis no Safari e titulo com folga */
+@media (max-width: 899px) {
+  .chart__svg { aspect-ratio: 1000 / 560; }
+  .device__lid { aspect-ratio: 9 / 15.5; }
+  .chart__dot, .chart__c--end .chart__dot { width: 3.8cqw; height: 3.8cqw; }
+  .tr__l1, .tr__l2 { font-size: clamp(2.4rem, 11.6vw, 4rem); width: auto; max-width: 100%; white-space: normal; }
+}
+.device__lid, .device__screen { isolation: isolate; }

@@ -69,6 +69,13 @@
   function buildChartShape() {
     var line = $('.chart__line');
     if (!line) { return; }
+    /* celular em pe: curva mais alta (a tela e estreita); desktop: tela deitada */
+    VH = window.matchMedia('(max-width: 899px)').matches ? 560 : 360;
+    var svg = $('.chart__svg');
+    svg.setAttribute('viewBox', '0 0 1000 ' + VH);
+    $('.chart__clip').setAttribute('height', VH + 60);
+    var gd = ''; for (var k = 1; k <= 4; k++) { gd += 'M0 ' + Math.round(VH * k / 5) + 'H1000'; }
+    $('.chart__grid path').setAttribute('d', gd);
     var pts = H.map(function (h, i) { return [Math.round((i + 0.5) / 7 * 1000), Math.round(VH - (24 + h * (VH - 52)))]; });
     var P = [[0, pts[0][1] + 16]].concat(pts, [[1000, pts[6][1] - 16]]);
     var d = curve(P);
@@ -85,6 +92,7 @@
   /* desenha o grafico ate a fracao p (0..1) do comprimento da curva */
   function renderChart(p) {
     if (!chart.line) { return; }
+    chart.p = p;
     var pt = chart.line.getPointAtLength(chart.len * p);
     chart.line.style.strokeDashoffset = String(1 - p);
     chart.line.style.opacity = p < 0.003 ? '0' : '1';
@@ -117,6 +125,7 @@
     $$('.art__node circle').forEach(function (c) { c.setAttribute('cx', pt.x.toFixed(1)); c.setAttribute('cy', pt.y.toFixed(1)); });
   }
   buildChartShape();
+  (function () { var mq = window.matchMedia('(max-width: 899px)'); var f = function () { buildChartShape(); renderChart(chart.p || 0); }; if (mq.addEventListener) { mq.addEventListener('change', f); } })();
 
   /* ------------------------------------------------------------------
      Fundo da hero em WebGL: feixes de luz laranja fluindo (seda), leque de linhas finas com pulsos subindo.
