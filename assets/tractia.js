@@ -472,6 +472,8 @@
       yPercent: 40, autoAlpha: 0, duration: 1.4, ease: 'expo.out', stagger: .18,
       scrollTrigger: { trigger: t, start: 'top 85%', once: true }
     });
+    /* ao terminar a rolagem, "Tracao gera." passa do branco para um laranja escuro queimado */
+    gsap.fromTo('.fim__b', { color: '#ffffff' }, { color: '#4a1d03', ease: 'none', scrollTrigger: { trigger: '.fim__t', start: 'top 65%', end: 'bottom 42%', scrub: 0.6 } });
     fadeUp($('.fim .btn'), { trigger: '.fim .btn', y: 30 });
     gsap.fromTo('.foot__mark', { yPercent: 30 }, { yPercent: 0, ease: 'none', scrollTrigger: { trigger: '.foot', start: 'top bottom', end: 'bottom bottom', scrub: true } });
   }
