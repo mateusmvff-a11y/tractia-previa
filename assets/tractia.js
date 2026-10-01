@@ -120,6 +120,106 @@
   buildArtShape();
 
   /* ------------------------------------------------------------------
+     Fundo da hero em WebGL: feixes de luz laranja fluindo (seda), leque de linhas finas com pulsos subindo.
+     Sem GPU/WebGL, ou com "menos movimento", fica o desenho SVG parado.
+     ------------------------------------------------------------------ */
+  var FRAG = [
+    'precision highp float;',
+    'uniform vec2 uRes; uniform float uT; uniform vec2 uM;',
+    'float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453); }',
+    'float noise(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f);',
+    '  return mix(mix(hash(i),hash(i+vec2(1.0,0.0)),f.x), mix(hash(i+vec2(0.0,1.0)),hash(i+vec2(1.0,1.0)),f.x), f.y); }',
+    'float fbm(vec2 p){ float v=0.0, a=0.5; for(int i=0;i<4;i++){ v+=a*noise(p); p=p*2.03+vec2(1.7,9.2); a*=0.5; } return v; }',
+    'void main(){',
+    '  vec2 uv = gl_FragCoord.xy / uRes;',
+    '  float t = uT;',
+    '  float x = uv.x;',
+    '  float cx = clamp((x + 0.075) / 1.15, 0.0, 1.0);',
+    '  float yc = 0.9 * pow(cx, 1.8);',
+    '  float w = fbm(vec2(x*1.6 - t*0.05, uv.y*1.2 + t*0.04));',
+    '  float d = (uv.y - yc) + (w - 0.5)*0.24 + 0.028*sin(x*5.0 + t*0.45) + uM.y*0.03;',
+    '  float spread = 0.03 + 0.34 * smoothstep(0.0, 1.0, x);',
+    '  float nd = d / spread;',
+    '  float core = exp(-pow(abs(nd), 1.5) * 3.0);',
+    '  float halo = exp(-pow(abs(nd*0.45), 1.3) * 2.0);',
+    '  float gain = smoothstep(-0.05, 1.0, x);',
+    '  float streak = fbm(vec2(x*2.2 - t*0.08, nd*7.0));',
+    '  float L = nd * 9.0;',
+    '  float id = floor(L + 0.5);',
+    '  float fr = abs(fract(L + 0.5) - 0.5);',
+    '  float line = smoothstep(0.04, 0.0, fr) * smoothstep(1.5, 0.2, abs(nd)) * smoothstep(0.1, 0.9, x);',
+    '  float ph = hash(vec2(id, 3.7));',
+    '  float pulse = pow(fract(x*0.8 - t*(0.10 + 0.08*ph) + ph), 14.0);',
+    '  line *= (0.5 + 2.8*pulse);',
+    '  vec3 dark = vec3(0.058,0.035,0.024);',
+    '  vec3 amber = vec3(0.98,0.42,0.09);',
+    '  vec3 peach = vec3(1.0,0.60,0.26);',
+    '  vec3 hot = vec3(1.0,0.84,0.66);',
+    '  float body = halo*0.55*(0.6 + 0.8*streak)*gain + core*0.9*gain*(0.7 + 0.5*streak);',
+    '  vec3 col = dark + amber*body*0.95 + peach*pow(core,2.0)*gain*0.42 + hot*pow(core*gain,4.0)*0.3;',
+    '  col += mix(peach, hot, gain*0.6) * line * 0.75 * gain;',
+    '  float b1 = fbm(vec2(uv.x*1.2 + t*0.03, uv.y*1.2 - t*0.025));',
+    '  col += vec3(0.55,0.22,0.05) * smoothstep(0.45, 0.85, b1) * 0.25 * (0.4 + uv.x);',
+    '  col *= 0.85 + 0.15 * smoothstep(1.2, 0.2, length(uv - vec2(0.6,0.55)));',
+    '  col = vec3(1.0) - exp(-col * 1.5);',
+    '  gl_FragColor = vec4(col, 1.0);',
+    '}'
+  ].join('\n');
+
+  var shader = { on: false, raf: 0 };
+  function initShader() {
+    var bg = $('.hero__bg');
+    if (!bg || reduce) { return; }
+    var cv = document.createElement('canvas');
+    cv.className = 'hero__gl';
+    cv.setAttribute('aria-hidden', 'true');
+    var gl = cv.getContext('webgl', { antialias: false, alpha: false, powerPreference: 'low-power' });
+    if (!gl) { return; }
+    function sh(type, src) { var s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return gl.getShaderParameter(s, gl.COMPILE_STATUS) ? s : null; }
+    var vs = sh(gl.VERTEX_SHADER, 'attribute vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }');
+    var fs = sh(gl.FRAGMENT_SHADER, FRAG);
+    if (!vs || !fs) { return; }
+    var pr = gl.createProgram();
+    gl.attachShader(pr, vs); gl.attachShader(pr, fs); gl.linkProgram(pr);
+    if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) { return; }
+    gl.useProgram(pr);
+    var buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    var loc = gl.getAttribLocation(pr, 'p');
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    var uRes = gl.getUniformLocation(pr, 'uRes'), uT = gl.getUniformLocation(pr, 'uT'), uM = gl.getUniformLocation(pr, 'uM');
+    bg.insertBefore(cv, bg.firstChild);
+
+    var scale = 0.55, mx = 0, my = 0, tx = 0, ty = 0, t0 = performance.now(), visible = true;
+    function size() {
+      var w = Math.max(2, Math.round(bg.clientWidth * scale)), h = Math.max(2, Math.round(bg.clientHeight * scale));
+      if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; gl.viewport(0, 0, w, h); }
+    }
+    function frame(now) {
+      shader.raf = 0;
+      if (!shader.on || !visible) { return; }
+      size();
+      mx += (tx - mx) * 0.04; my += (ty - my) * 0.04;
+      gl.uniform2f(uRes, cv.width, cv.height);
+      gl.uniform1f(uT, (now - t0) / 1000 + 12.0);
+      gl.uniform2f(uM, mx, my);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      shader.raf = requestAnimationFrame(frame);
+    }
+    shader.start = function () { if (!shader.on) { shader.on = true; } if (!shader.raf) { shader.raf = requestAnimationFrame(frame); } };
+    shader.stop = function () { shader.on = false; if (shader.raf) { cancelAnimationFrame(shader.raf); shader.raf = 0; } };
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (en) { visible = en[0].isIntersecting; if (visible && shader.on && !shader.raf) { shader.raf = requestAnimationFrame(frame); } }).observe(bg);
+    }
+    window.addEventListener('mousemove', function (e) { tx = e.clientX / window.innerWidth - 0.5; ty = e.clientY / window.innerHeight - 0.5; }, { passive: true });
+    bg.classList.add('has-shader');
+    shader.start();
+  }
+  initShader();
+
+  /* ------------------------------------------------------------------
      Fundo em video (opcional): se existir assets/media/hero-fundo.mp4, ele assume o lugar do desenho animado.
      Gere o video numa IA (ver ia/PROMPT-VIDEO-HERO.md) e salve nesse caminho.
      ------------------------------------------------------------------ */
@@ -132,7 +232,7 @@
       if (!r.ok) { return; }
       v.src = src;
       v.addEventListener('canplay', function () {
-        bg.classList.add('has-video');
+        bg.classList.add('has-video'); if (shader.stop) { shader.stop(); }
         var p = v.play(); if (p && p.catch) { p.catch(function () {}); }
       }, { once: true });
     }).catch(function () {});
@@ -253,6 +353,8 @@
 
     gsap.from('.hero__bg', { opacity: 0, duration: 1.8, ease: 'power2.out' });
 
+    var useArt = !$('.hero__bg').classList.contains('has-shader');
+    if (useArt) {
     /* linhas finas se desenham */
     var fan = $$('.art__fan path');
     gsap.set(fan, { strokeDasharray: 1, strokeDashoffset: 1 });
@@ -271,8 +373,10 @@
       gsap.to(c, { strokeDashoffset: -0.94, duration: 3.4 + (i % 4) * 0.9, ease: 'none', repeat: -1, delay: 1.6 + i * 0.55 });
     });
 
-    /* o fundo acompanha o mouse de leve */
-    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    }
+
+    /* o fundo acompanha o mouse de leve (so o desenho SVG; o shader ja segue o mouse) */
+    if (useArt && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
       var qx = gsap.quickTo('.hero__bg .art', 'x', { duration: 1.4, ease: 'power3.out' });
       var qy = gsap.quickTo('.hero__bg .art', 'y', { duration: 1.4, ease: 'power3.out' });
       $('.hero').addEventListener('mousemove', function (e) {
@@ -301,7 +405,7 @@
          sobe, ele comeca inclinado para tras (22 graus), se endireita, cresce (.94 a 1) e sobe sobre o
          titulo (8% da propria altura), enquanto o titulo sobe bem mais devagar */
       gsap.fromTo(device, { rotateX: 22, scale: 0.94, yPercent: 0 }, {
-        rotateX: 0, scale: 1, yPercent: -20, ease: 'none',
+        rotateX: 0, scale: 1, yPercent: -16, ease: 'none',
         scrollTrigger: { trigger: section, start: 'top bottom', end: 'top top', scrub: 0.6 }
       });
       gsap.fromTo(title, { y: 0 }, {
@@ -329,7 +433,7 @@
         p: 1, ease: 'none', onUpdate: function () { renderChart(proxy.p); },
         scrollTrigger: { trigger: '.chart', start: 'top 80%', end: 'bottom 40%', scrub: 1 }
       });
-      revealLines($('.tr__big'));
+      fadeUp($$('.tr__l1, .tr__l2'), { trigger: '.tr__fim' });
       fadeUp($$('.tr__txt > *'), { trigger: '.tr__txt' });
     });
   }
