@@ -135,7 +135,7 @@ em { font-style: normal; }
     linear-gradient(0deg, rgba(10,7,5,.7) 0%, rgba(10,7,5,0) 38%),
     linear-gradient(0deg, var(--ink-2) 0%, rgba(18,17,16,0) 12%); }
 .hero__in { position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2.5rem; padding-top: calc(var(--nav-h) + clamp(1.5rem, 5vh, 3.5rem)); padding-bottom: clamp(2rem, 6vh, 4.5rem); text-align: left; }
-.hero__top { display: grid; grid-template-columns: auto 1fr; align-items: start; gap: 1rem 1.1rem; width: min(36rem, 100%); padding: 1.3rem 1.5rem 1.4rem; border-radius: 22px; background: rgba(20,13,8,.46); border: 1px solid rgba(255,255,255,.11); -webkit-backdrop-filter: blur(18px) saturate(1.25); backdrop-filter: blur(18px) saturate(1.25); box-shadow: 0 30px 60px -32px rgba(0,0,0,.65), 0 0 0 1px rgba(0,0,0,.2) inset; }
+.hero__top { display: grid; grid-template-columns: auto 1fr; align-items: start; gap: 1rem 1.1rem; width: min(36rem, 100%); padding: 1.3rem 1.5rem 1.4rem; border-radius: 22px; background: rgba(20,13,8,.46); border: 1px solid rgba(255,255,255,.11); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); box-shadow: 0 30px 60px -32px rgba(0,0,0,.65), 0 0 0 1px rgba(0,0,0,.2) inset; }
 .hero__mark { display: block; width: 2rem; margin-top: .3rem; }
 .hero__mark svg { display: block; width: 100%; height: auto; fill: var(--or-t); }
 .hero__p { margin: 0; }
@@ -154,9 +154,6 @@ em { font-style: normal; }
 .hero__c2 { margin-top: 0; }
 .hero__c b { font-family: var(--f-disp); font-weight: 700; color: #fff; letter-spacing: -.02em; }
 .hero__btns { display: flex; flex-wrap: wrap; align-items: center; gap: .9rem; }
-.hero__video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.4s ease; }
-.hero__bg.has-video .hero__video { opacity: 1; }
-.hero__bg.has-video .art, .hero__bg.has-video .blob { opacity: 0; transition: opacity 1.4s ease; }
 
 /* ---------- tracao (tela fixa que avanca com a rolagem) ---------- */
 .tr { background: var(--ink-2); }
@@ -342,7 +339,6 @@ em { font-style: normal; }
 /* fundo em WebGL: assume o lugar do desenho SVG e das manchas */
 .hero__gl { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .hero__bg.has-shader .art, .hero__bg.has-shader .blob { display: none; }
-.hero__bg.has-video .hero__gl { opacity: 0; transition: opacity 1.4s ease; }
 @media (max-width: 899px) {
   .tr__l1, .tr__l2 { font-size: clamp(2.6rem, 13vw, 4.2rem); }
   .tr__row2 { flex-direction: column; gap: 1.4rem; }

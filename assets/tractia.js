@@ -117,7 +117,6 @@
     $$('.art__node circle').forEach(function (c) { c.setAttribute('cx', pt.x.toFixed(1)); c.setAttribute('cy', pt.y.toFixed(1)); });
   }
   buildChartShape();
-  buildArtShape();
 
   /* ------------------------------------------------------------------
      Fundo da hero em WebGL: feixes de luz laranja fluindo (seda), leque de linhas finas com pulsos subindo.
@@ -130,6 +129,7 @@
     'float noise(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f);',
     '  return mix(mix(hash(i),hash(i+vec2(1.0,0.0)),f.x), mix(hash(i+vec2(0.0,1.0)),hash(i+vec2(1.0,1.0)),f.x), f.y); }',
     'float fbm(vec2 p){ float v=0.0, a=0.5; for(int i=0;i<4;i++){ v+=a*noise(p); p=p*2.03+vec2(1.7,9.2); a*=0.5; } return v; }',
+    'float fbm3(vec2 p){ float v=0.0, a=0.5; for(int i=0;i<3;i++){ v+=a*noise(p); p=p*2.03+vec2(1.7,9.2); a*=0.5; } return v; }',
     'void main(){',
     '  vec2 uv = gl_FragCoord.xy / uRes;',
     '  float t = uT;',
@@ -143,7 +143,7 @@
     '  float core = exp(-pow(abs(nd), 1.5) * 3.0);',
     '  float halo = exp(-pow(abs(nd*0.45), 1.3) * 2.0);',
     '  float gain = smoothstep(-0.05, 1.0, x);',
-    '  float streak = fbm(vec2(x*2.2 - t*0.08, nd*7.0));',
+    '  float streak = fbm3(vec2(x*2.2 - t*0.08, nd*7.0));',
     '  float L = nd * 9.0;',
     '  float id = floor(L + 0.5);',
     '  float fr = abs(fract(L + 0.5) - 0.5);',
@@ -158,7 +158,7 @@
     '  float body = halo*0.55*(0.6 + 0.8*streak)*gain + core*0.9*gain*(0.7 + 0.5*streak);',
     '  vec3 col = dark + amber*body*0.95 + peach*pow(core,2.0)*gain*0.42 + hot*pow(core*gain,4.0)*0.3;',
     '  col += mix(peach, hot, gain*0.6) * line * 0.75 * gain;',
-    '  float b1 = fbm(vec2(uv.x*1.2 + t*0.03, uv.y*1.2 - t*0.025));',
+    '  float b1 = fbm3(vec2(uv.x*1.2 + t*0.03, uv.y*1.2 - t*0.025));',
     '  col += vec3(0.55,0.22,0.05) * smoothstep(0.45, 0.85, b1) * 0.25 * (0.4 + uv.x);',
     '  col *= 0.85 + 0.15 * smoothstep(1.2, 0.2, length(uv - vec2(0.6,0.55)));',
     '  col = vec3(1.0) - exp(-col * 1.5);',
@@ -169,7 +169,9 @@
   var shader = { on: false, raf: 0 };
   function initShader() {
     var bg = $('.hero__bg');
-    if (!bg || reduce) { return; }
+    var saver = navigator.connection && navigator.connection.saveData;
+    var weak = (navigator.deviceMemory && navigator.deviceMemory <= 2) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2);
+    if (!bg || reduce || saver || weak) { return; }
     var cv = document.createElement('canvas');
     cv.className = 'hero__gl';
     cv.setAttribute('aria-hidden', 'true');
@@ -177,7 +179,7 @@
     if (!gl) { return; }
     function sh(type, src) { var s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return gl.getShaderParameter(s, gl.COMPILE_STATUS) ? s : null; }
     var vs = sh(gl.VERTEX_SHADER, 'attribute vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }');
-    var fs = sh(gl.FRAGMENT_SHADER, FRAG);
+    var fs = sh(gl.FRAGMENT_SHADER, FRAG) || sh(gl.FRAGMENT_SHADER, FRAG.replace('precision highp float;', 'precision mediump float;'));
     if (!vs || !fs) { return; }
     var pr = gl.createProgram();
     gl.attachShader(pr, vs); gl.attachShader(pr, fs); gl.linkProgram(pr);
@@ -192,52 +194,57 @@
     var uRes = gl.getUniformLocation(pr, 'uRes'), uT = gl.getUniformLocation(pr, 'uT'), uM = gl.getUniformLocation(pr, 'uM');
     bg.insertBefore(cv, bg.firstChild);
 
-    var scale = 0.55, mx = 0, my = 0, tx = 0, ty = 0, t0 = performance.now(), visible = true;
+    /* custo controlado: no maximo ~700 mil pixels, 30 quadros por segundo, e se o aparelho nao der conta
+       a qualidade cai por etapas; no limite o fundo vira o desenho parado */
+    var MAXPX = 700000, q = 0.55, MINQ = 0.3, mx = 0, my = 0, tx = 0, ty = 0;
+    var t0 = performance.now(), lastRaf = t0, lastDraw = 0, visible = true, slow = 0, count = 0;
+    function giveUp() {
+      shader.stop();
+      if (cv.parentNode) { cv.parentNode.removeChild(cv); }
+      bg.classList.remove('has-shader');
+      if (!$('.art__fan path')) { buildArtShape(); }
+    }
     function size() {
-      var w = Math.max(2, Math.round(bg.clientWidth * scale)), h = Math.max(2, Math.round(bg.clientHeight * scale));
+      var cw = bg.clientWidth, ch = bg.clientHeight;
+      var s = Math.min(q, Math.sqrt(MAXPX / Math.max(1, cw * ch)));
+      var w = Math.max(2, Math.round(cw * s)), h = Math.max(2, Math.round(ch * s));
       if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; gl.viewport(0, 0, w, h); }
     }
     function frame(now) {
       shader.raf = 0;
       if (!shader.on || !visible) { return; }
+      var dt = now - lastRaf; lastRaf = now;
+      shader.raf = requestAnimationFrame(frame);
+      if (now - lastDraw < 30) { return; }
+      lastDraw = now;
+      /* mede os quadros: 40 seguidos acima de 45 ms = aparelho fraco */
+      count++;
+      if (count > 20) { slow += dt > 45 ? 1 : -1; if (slow < 0) { slow = 0; } }
+      if (slow > 40) {
+        slow = 0; count = 0;
+        if (q > MINQ + 0.01) { q = Math.max(MINQ, q * 0.75); } else { giveUp(); return; }
+      }
       size();
-      mx += (tx - mx) * 0.04; my += (ty - my) * 0.04;
+      mx += (tx - mx) * 0.05; my += (ty - my) * 0.05;
       gl.uniform2f(uRes, cv.width, cv.height);
       gl.uniform1f(uT, (now - t0) / 1000 + 12.0);
       gl.uniform2f(uM, mx, my);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
-      shader.raf = requestAnimationFrame(frame);
     }
-    shader.start = function () { if (!shader.on) { shader.on = true; } if (!shader.raf) { shader.raf = requestAnimationFrame(frame); } };
+    shader.start = function () { shader.on = true; if (!shader.raf) { lastRaf = performance.now(); shader.raf = requestAnimationFrame(frame); } };
     shader.stop = function () { shader.on = false; if (shader.raf) { cancelAnimationFrame(shader.raf); shader.raf = 0; } };
     if ('IntersectionObserver' in window) {
-      new IntersectionObserver(function (en) { visible = en[0].isIntersecting; if (visible && shader.on && !shader.raf) { shader.raf = requestAnimationFrame(frame); } }).observe(bg);
+      new IntersectionObserver(function (en) { visible = en[0].isIntersecting; if (visible && shader.on && !shader.raf) { lastRaf = performance.now(); shader.raf = requestAnimationFrame(frame); } }).observe(bg);
     }
-    window.addEventListener('mousemove', function (e) { tx = e.clientX / window.innerWidth - 0.5; ty = e.clientY / window.innerHeight - 0.5; }, { passive: true });
+    cv.addEventListener('webglcontextlost', function (e) { e.preventDefault(); giveUp(); });
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      window.addEventListener('mousemove', function (e) { tx = e.clientX / window.innerWidth - 0.5; ty = e.clientY / window.innerHeight - 0.5; }, { passive: true });
+    }
     bg.classList.add('has-shader');
     shader.start();
   }
   initShader();
-
-  /* ------------------------------------------------------------------
-     Fundo em video (opcional): se existir assets/media/hero-fundo.mp4, ele assume o lugar do desenho animado.
-     Gere o video numa IA (ver ia/PROMPT-VIDEO-HERO.md) e salve nesse caminho.
-     ------------------------------------------------------------------ */
-  function initHeroVideo() {
-    var v = $('.hero__video'), bg = $('.hero__bg');
-    var saver = navigator.connection && navigator.connection.saveData;
-    if (!v || reduce || saver || !window.fetch) { return; }
-    var src = 'assets/media/hero-fundo.mp4';
-    fetch(src, { method: 'HEAD' }).then(function (r) {
-      if (!r.ok) { return; }
-      v.src = src;
-      v.addEventListener('canplay', function () {
-        bg.classList.add('has-video'); if (shader.stop) { shader.stop(); }
-        var p = v.play(); if (p && p.catch) { p.catch(function () {}); }
-      }, { once: true });
-    }).catch(function () {});
-  }
-  initHeroVideo();
+  if (!$('.hero__bg.has-shader')) { buildArtShape(); }
 
   /* ------------------------------------------------------------------
      Sem GSAP ou com movimento reduzido: tudo pronto
