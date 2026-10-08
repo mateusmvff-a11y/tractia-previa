@@ -79,44 +79,10 @@
 
   <!-- ============ HERO ============ -->
   <section class="hero" id="topo">
-    <!-- fundo animado: manchas de luz que derivam, feixes que respiram e cometas subindo pelas linhas (gerados no JS) -->
+    <!-- fundo: imagem (aparece na hora, e fica se o video nao puder tocar) e video em loop por cima -->
     <div class="hero__bg" aria-hidden="true">
-      <span class="blob blob--1"></span><span class="blob blob--2"></span><span class="blob blob--3"></span>
-      <svg class="art" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" fill="none">
-        <defs>
-          <linearGradient id="gb" gradientUnits="userSpaceOnUse" x1="0" y1="900" x2="1600" y2="0">
-            <stop offset="0" stop-color="#b45309" stop-opacity="0"/>
-            <stop offset=".35" stop-color="#e2802f"/>
-            <stop offset=".78" stop-color="#ffb877"/>
-            <stop offset="1" stop-color="#fff0dc"/>
-          </linearGradient>
-          <linearGradient id="gl" gradientUnits="userSpaceOnUse" x1="0" y1="900" x2="1600" y2="0">
-            <stop offset="0" stop-color="#ffb877" stop-opacity="0"/>
-            <stop offset=".5" stop-color="#ffb877" stop-opacity=".5"/>
-            <stop offset="1" stop-color="#fff" stop-opacity=".85"/>
-          </linearGradient>
-          <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse"><path d="M60 0H0V60" stroke="#fff" stroke-opacity=".045"/></pattern>
-          <filter id="b30" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="34"/></filter>
-          <filter id="b14" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="16"/></filter>
-          <filter id="b4" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="4"/></filter>
-        </defs>
-        <rect width="1600" height="900" fill="url(#grid)"/>
-        <g class="art__beams" stroke="url(#gb)" stroke-linecap="round">
-          <path class="b1" d="M-120 930 C520 890 920 470 1720 120" stroke-width="200" filter="url(#b30)" opacity=".5"/>
-          <path class="b2" d="M-120 930 C520 890 920 470 1720 120" stroke-width="98" filter="url(#b14)" opacity=".8"/>
-          <path class="b3" d="M-120 930 C520 890 920 470 1720 120" stroke-width="10" filter="url(#b4)"/>
-        </g>
-        <g class="art__beams art__beams--2" stroke="url(#gb)" stroke-linecap="round">
-          <path d="M260 1010 C800 970 1160 740 1720 490" stroke-width="140" filter="url(#b30)" opacity=".36"/>
-          <path d="M260 1010 C800 970 1160 740 1720 490" stroke-width="52" filter="url(#b14)" opacity=".55"/>
-        </g>
-        <g class="art__fan" stroke="url(#gl)" stroke-width="1.2" stroke-linecap="round"></g>
-        <g class="art__comets" stroke="#fff" stroke-width="2.6" stroke-linecap="round"></g>
-        <g class="art__node">
-          <circle class="halo" r="28" fill="#ffb877" fill-opacity=".28"/>
-          <circle class="core" r="6" fill="#fff"/>
-        </g>
-      </svg>
+      <img class="hero__img" src="assets/media/hero-fundo.jpg" alt="" width="1920" height="1088" fetchpriority="high" decoding="async">
+      <video class="hero__video" muted loop playsinline preload="auto" data-hd="assets/media/hero-fundo.mp4" data-sd="assets/media/hero-fundo-720.mp4"></video>
       <div class="hero__veil"></div>
     </div>
 

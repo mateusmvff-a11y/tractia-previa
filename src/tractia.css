@@ -150,11 +150,9 @@ em { font-style: normal; }
 /* ---------- hero: fundo animado na pagina inteira, texto grande no canto ---------- */
 .hero { position: relative; min-height: 100svh; display: flex; background: #0c0907; color: #fff; overflow: hidden; isolation: isolate; }
 .hero__bg { position: absolute; z-index: -1; inset: 0; background: #0f0906; }
-.hero__bg .art { position: absolute; inset: -3%; width: 106%; height: 106%; }
-.blob { position: absolute; border-radius: 50%; filter: blur(70px); will-change: transform; }
-.blob--1 { width: 46vw; height: 46vw; right: -8vw; top: -14vw; background: radial-gradient(circle, rgba(255,140,60,.55), transparent 68%); }
-.blob--2 { width: 52vw; height: 52vw; left: -14vw; bottom: -22vw; background: radial-gradient(circle, rgba(226,110,30,.5), transparent 68%); }
-.blob--3 { width: 34vw; height: 34vw; left: 38vw; top: 26vh; background: radial-gradient(circle, rgba(180,83,9,.4), transparent 70%); }
+.hero__img, .hero__video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 72% 50%; }
+.hero__video { opacity: 0; transition: opacity 1.4s ease; }
+.hero__video.is-on { opacity: 1; }
 .hero__veil { position: absolute; inset: 0; background:
     linear-gradient(90deg, rgba(10,7,5,.78) 0%, rgba(10,7,5,.42) 46%, rgba(10,7,5,0) 78%),
     linear-gradient(0deg, rgba(10,7,5,.7) 0%, rgba(10,7,5,0) 38%),
@@ -362,11 +360,7 @@ em { font-style: normal; }
 
 /* "Chamamos isso de" numa linha e "tracao." na de baixo */
 @media (max-width: 899px) { .hero__row { flex-direction: column-reverse; align-items: flex-start; } }
-.art__node { display: none; }
 
-/* fundo em WebGL: assume o lugar do desenho SVG e das manchas */
-.hero__gl { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.hero__bg.has-shader .art, .hero__bg.has-shader .blob { display: none; }
 @media (max-width: 899px) {
   .tr__l1, .tr__l2 { font-size: clamp(2.6rem, 13vw, 4.2rem); }
 }

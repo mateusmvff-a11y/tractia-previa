@@ -133,154 +133,32 @@
     if (kw[1]) { kw[1].classList.toggle('on', p > 0.985); }
   }
 
-  /* hero: leque de linhas finas subindo, na mesma curva dos feixes */
-  function buildArtShape() {
-    var g = $('.art__fan');
-    if (!g) { return; }
-    var n = 16;
-    for (var i = 0; i < n; i++) {
-      var t = i / (n - 1);
-      var d = 'M-120 ' + (930 + (t - 0.5) * 56) +
-        ' C' + (520 + t * 90) + ' ' + (890 - t * 50) +
-        ' ' + (920 + t * 110) + ' ' + (470 - t * 190) +
-        ' 1720 ' + (-90 + t * 380);
-      g.appendChild(el('path', { d: d, pathLength: '1' }));
-      if (i % 2 === 0) { $('.art__comets').appendChild(el('path', { d: d, pathLength: '1', 'class': 'comet' })); }
-    }
-    var b3 = $('.art__beams .b3');
-    var pt = b3.getPointAtLength(b3.getTotalLength() * 0.8);
-    $$('.art__node circle').forEach(function (c) { c.setAttribute('cx', pt.x.toFixed(1)); c.setAttribute('cy', pt.y.toFixed(1)); });
-  }
   buildChartShape();
   (function () { var mq = window.matchMedia('(max-width: 899px)'); var f = function () { buildChartShape(); renderChart(chart.p || 0); }; if (mq.addEventListener) { mq.addEventListener('change', f); } })();
 
   /* ------------------------------------------------------------------
-     Fundo da hero em WebGL: feixes de luz laranja fluindo (seda), leque de linhas finas com pulsos subindo.
-     Sem GPU/WebGL, ou com "menos movimento", fica o desenho SVG parado.
+     Fundo da hero: imagem (aparece na hora) e, por cima, o video em loop que entra com fade quando pode tocar.
+     Celular/rede economica: versao 720p; sem movimento reduzido; pausa quando a hero sai da tela.
      ------------------------------------------------------------------ */
-  var FRAG = [
-    'precision highp float;',
-    'uniform vec2 uRes; uniform float uT; uniform vec2 uM;',
-    'float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453); }',
-    'float noise(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f);',
-    '  return mix(mix(hash(i),hash(i+vec2(1.0,0.0)),f.x), mix(hash(i+vec2(0.0,1.0)),hash(i+vec2(1.0,1.0)),f.x), f.y); }',
-    'float fbm(vec2 p){ float v=0.0, a=0.5; for(int i=0;i<4;i++){ v+=a*noise(p); p=p*2.03+vec2(1.7,9.2); a*=0.5; } return v; }',
-    'float fbm3(vec2 p){ float v=0.0, a=0.5; for(int i=0;i<3;i++){ v+=a*noise(p); p=p*2.03+vec2(1.7,9.2); a*=0.5; } return v; }',
-    'void main(){',
-    '  vec2 uv = gl_FragCoord.xy / uRes;',
-    '  float t = uT;',
-    '  float x = uv.x;',
-    '  float cx = clamp((x + 0.075) / 1.15, 0.0, 1.0);',
-    '  float yc = 0.9 * pow(cx, 1.8);',
-    '  float w = fbm(vec2(x*1.6 - t*0.05, uv.y*1.2 + t*0.04));',
-    '  float d = (uv.y - yc) + (w - 0.5)*0.24 + 0.028*sin(x*5.0 + t*0.45) + uM.y*0.03;',
-    '  float spread = 0.03 + 0.34 * smoothstep(0.0, 1.0, x);',
-    '  float nd = d / spread;',
-    '  float core = exp(-pow(abs(nd), 1.5) * 3.0);',
-    '  float halo = exp(-pow(abs(nd*0.45), 1.3) * 2.0);',
-    '  float gain = smoothstep(-0.05, 1.0, x);',
-    '  float streak = fbm3(vec2(x*2.2 - t*0.08, nd*7.0));',
-    '  float L = nd * 9.0;',
-    '  float id = floor(L + 0.5);',
-    '  float fr = abs(fract(L + 0.5) - 0.5);',
-    '  float line = smoothstep(0.04, 0.0, fr) * smoothstep(1.5, 0.2, abs(nd)) * smoothstep(0.1, 0.9, x);',
-    '  float ph = hash(vec2(id, 3.7));',
-    '  float pulse = pow(fract(x*0.8 - t*(0.10 + 0.08*ph) + ph), 14.0);',
-    '  line *= (0.5 + 2.8*pulse);',
-    '  vec3 dark = vec3(0.058,0.035,0.024);',
-    '  vec3 amber = vec3(0.98,0.42,0.09);',
-    '  vec3 peach = vec3(1.0,0.60,0.26);',
-    '  vec3 hot = vec3(1.0,0.84,0.66);',
-    '  float body = halo*0.55*(0.6 + 0.8*streak)*gain + core*0.9*gain*(0.7 + 0.5*streak);',
-    '  vec3 col = dark + amber*body*0.95 + peach*pow(core,2.0)*gain*0.42 + hot*pow(core*gain,4.0)*0.3;',
-    '  col += mix(peach, hot, gain*0.6) * line * 0.75 * gain;',
-    '  float b1 = fbm3(vec2(uv.x*1.2 + t*0.03, uv.y*1.2 - t*0.025));',
-    '  col += vec3(0.55,0.22,0.05) * smoothstep(0.45, 0.85, b1) * 0.25 * (0.4 + uv.x);',
-    '  col *= 0.85 + 0.15 * smoothstep(1.2, 0.2, length(uv - vec2(0.6,0.55)));',
-    '  col = vec3(1.0) - exp(-col * 1.5);',
-    '  gl_FragColor = vec4(col, 1.0);',
-    '}'
-  ].join('\n');
-
-  var shader = { on: false, raf: 0 };
-  function initShader() {
-    var bg = $('.hero__bg');
-    var saver = navigator.connection && navigator.connection.saveData;
-    var weak = (navigator.deviceMemory && navigator.deviceMemory <= 2) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2);
-    if (!bg || reduce || saver || weak) { return; }
-    var cv = document.createElement('canvas');
-    cv.className = 'hero__gl';
-    cv.setAttribute('aria-hidden', 'true');
-    var gl = cv.getContext('webgl', { antialias: false, alpha: false, powerPreference: 'low-power' });
-    if (!gl) { return; }
-    function sh(type, src) { var s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return gl.getShaderParameter(s, gl.COMPILE_STATUS) ? s : null; }
-    var vs = sh(gl.VERTEX_SHADER, 'attribute vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }');
-    var fs = sh(gl.FRAGMENT_SHADER, FRAG) || sh(gl.FRAGMENT_SHADER, FRAG.replace('precision highp float;', 'precision mediump float;'));
-    if (!vs || !fs) { return; }
-    var pr = gl.createProgram();
-    gl.attachShader(pr, vs); gl.attachShader(pr, fs); gl.linkProgram(pr);
-    if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) { return; }
-    gl.useProgram(pr);
-    var buf = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-    var loc = gl.getAttribLocation(pr, 'p');
-    gl.enableVertexAttribArray(loc);
-    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-    var uRes = gl.getUniformLocation(pr, 'uRes'), uT = gl.getUniformLocation(pr, 'uT'), uM = gl.getUniformLocation(pr, 'uM');
-    bg.insertBefore(cv, bg.firstChild);
-
-    /* custo controlado: no maximo ~700 mil pixels, 30 quadros por segundo, e se o aparelho nao der conta
-       a qualidade cai por etapas; no limite o fundo vira o desenho parado */
-    var MAXPX = 700000, q = 0.55, MINQ = 0.3, mx = 0, my = 0, tx = 0, ty = 0;
-    var t0 = performance.now(), lastRaf = t0, lastDraw = 0, visible = true, slow = 0, count = 0;
-    function giveUp() {
-      shader.stop();
-      if (cv.parentNode) { cv.parentNode.removeChild(cv); }
-      bg.classList.remove('has-shader');
-      if (!$('.art__fan path')) { buildArtShape(); }
-    }
-    function size() {
-      var cw = bg.clientWidth, ch = bg.clientHeight;
-      var s = Math.min(q, Math.sqrt(MAXPX / Math.max(1, cw * ch)));
-      var w = Math.max(2, Math.round(cw * s)), h = Math.max(2, Math.round(ch * s));
-      if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; gl.viewport(0, 0, w, h); }
-    }
-    function frame(now) {
-      shader.raf = 0;
-      if (!shader.on || !visible) { return; }
-      var dt = now - lastRaf; lastRaf = now;
-      shader.raf = requestAnimationFrame(frame);
-      if (now - lastDraw < 30) { return; }
-      lastDraw = now;
-      /* mede os quadros: 40 seguidos acima de 45 ms = aparelho fraco */
-      count++;
-      if (count > 20) { slow += dt > 45 ? 1 : -1; if (slow < 0) { slow = 0; } }
-      if (slow > 40) {
-        slow = 0; count = 0;
-        if (q > MINQ + 0.01) { q = Math.max(MINQ, q * 0.75); } else { giveUp(); return; }
-      }
-      size();
-      mx += (tx - mx) * 0.05; my += (ty - my) * 0.05;
-      gl.uniform2f(uRes, cv.width, cv.height);
-      gl.uniform1f(uT, (now - t0) / 1000 + 12.0);
-      gl.uniform2f(uM, mx, my);
-      gl.drawArrays(gl.TRIANGLES, 0, 3);
-    }
-    shader.start = function () { shader.on = true; if (!shader.raf) { lastRaf = performance.now(); shader.raf = requestAnimationFrame(frame); } };
-    shader.stop = function () { shader.on = false; if (shader.raf) { cancelAnimationFrame(shader.raf); shader.raf = 0; } };
+  function initHeroVideo() {
+    var v = $('.hero__video');
+    if (!v) { return; }
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var conn = navigator.connection || {};
+    if (reduce || conn.saveData) { return; }
+    var small = window.matchMedia('(max-width: 899px)').matches || /2g/.test(conn.effectiveType || '');
+    v.muted = true; v.defaultMuted = true; v.setAttribute('playsinline', '');
+    v.addEventListener('canplay', function () { v.classList.add('is-on'); }, { once: true });
+    v.src = (small && v.getAttribute('data-sd')) || v.getAttribute('data-hd');
+    var p = v.play(); if (p && p.catch) { p.catch(function () { v.classList.remove('is-on'); }); }
     if ('IntersectionObserver' in window) {
-      new IntersectionObserver(function (en) { visible = en[0].isIntersecting; if (visible && shader.on && !shader.raf) { lastRaf = performance.now(); shader.raf = requestAnimationFrame(frame); } }).observe(bg);
+      new IntersectionObserver(function (en) {
+        if (en[0].isIntersecting) { var q = v.play(); if (q && q.catch) { q.catch(function () {}); } } else { v.pause(); }
+      }).observe(v);
     }
-    cv.addEventListener('webglcontextlost', function (e) { e.preventDefault(); giveUp(); });
-    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
-      window.addEventListener('mousemove', function (e) { tx = e.clientX / window.innerWidth - 0.5; ty = e.clientY / window.innerHeight - 0.5; }, { passive: true });
-    }
-    bg.classList.add('has-shader');
-    shader.start();
+    document.addEventListener('visibilitychange', function () { if (document.hidden) { v.pause(); } else if (v.classList.contains('is-on')) { var q = v.play(); if (q && q.catch) { q.catch(function () {}); } } });
   }
-  initShader();
-  if (!$('.hero__bg.has-shader')) { buildArtShape(); }
+  initHeroVideo();
 
   /* ------------------------------------------------------------------
      Sem GSAP ou com movimento reduzido: tudo pronto
@@ -296,7 +174,6 @@
   function basics() {
     root.classList.add('no-anim');
     renderChart(1);
-    $$('.art__fan path').forEach(function (p) { p.style.strokeDasharray = 'none'; });
     var onScroll = function () { nav.classList.toggle('is-solid', window.scrollY > 40); lightZones(); };
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
@@ -403,37 +280,6 @@
     gsap.from('.hero__bg', { opacity: 0, duration: 1.8, ease: 'power2.out' });
     if ('IntersectionObserver' in window) { new IntersectionObserver(function (en) { $('.hero').classList.toggle('is-off', !en[0].isIntersecting); }).observe($('.hero')); }
 
-    var useArt = !$('.hero__bg').classList.contains('has-shader');
-    if (useArt) {
-    /* linhas finas se desenham */
-    var fan = $$('.art__fan path');
-    gsap.set(fan, { strokeDasharray: 1, strokeDashoffset: 1 });
-    gsap.to(fan, { strokeDashoffset: 0, duration: 2.8, stagger: .07, delay: .7, ease: 'power2.out' });
-    gsap.from('.art__beams path', { opacity: 0, duration: 2.2, stagger: .2, delay: .5 });
-
-    /* fundo vivo: feixes respiram bem, manchas de luz derivam, cometas sobem pelas linhas */
-    gsap.to('.art__beams', { x: -70, y: 34, duration: 7, yoyo: true, repeat: -1, ease: 'sine.inOut' });
-    gsap.to('.art__beams--2', { x: 60, y: -26, duration: 9, yoyo: true, repeat: -1, ease: 'sine.inOut' });
-    gsap.to('.art__beams .b2', { opacity: 0.55, duration: 3.2, yoyo: true, repeat: -1, ease: 'sine.inOut' });
-    gsap.to('.blob--1', { x: '-9vw', y: '8vw', scale: 1.18, duration: 9, yoyo: true, repeat: -1, ease: 'sine.inOut' });
-    gsap.to('.blob--2', { x: '12vw', y: '-7vw', scale: 1.12, duration: 11, yoyo: true, repeat: -1, ease: 'sine.inOut' });
-    gsap.to('.blob--3', { x: '-14vw', y: '10vh', scale: 1.3, duration: 13, yoyo: true, repeat: -1, ease: 'sine.inOut' });
-    $$('.art__comets .comet').forEach(function (c, i) {
-      gsap.set(c, { strokeDasharray: '0.06 0.94', strokeDashoffset: 0.06, opacity: 0.9 });
-      gsap.to(c, { strokeDashoffset: -0.94, duration: 3.4 + (i % 4) * 0.9, ease: 'none', repeat: -1, delay: 1.6 + i * 0.55 });
-    });
-
-    }
-
-    /* o fundo acompanha o mouse de leve (so o desenho SVG; o shader ja segue o mouse) */
-    if (useArt && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
-      var qx = gsap.quickTo('.hero__bg .art', 'x', { duration: 1.4, ease: 'power3.out' });
-      var qy = gsap.quickTo('.hero__bg .art', 'y', { duration: 1.4, ease: 'power3.out' });
-      $('.hero').addEventListener('mousemove', function (e) {
-        qx((e.clientX / window.innerWidth - 0.5) * -34);
-        qy((e.clientY / window.innerHeight - 0.5) * -22);
-      });
-    }
   }
 
   /* ---------- tracao: o grafico sobe com a rolagem, depois vira "tracao" ---------- */
